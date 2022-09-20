@@ -84,7 +84,7 @@ class _BkashPaymentState extends State<BkashPayment> {
       body: Stack(
         children: [
           InAppWebView(
-            initialFile: "assets/www/checkout_bkash.html",
+            initialFile: "packages/flutter_bkash/assets/www/checkout_bkash.html",
             initialOptions: InAppWebViewGroupOptions(
               crossPlatform: InAppWebViewOptions(
                 useShouldOverrideUrlLoading: true,

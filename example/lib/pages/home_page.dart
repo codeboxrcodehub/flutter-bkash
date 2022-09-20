@@ -133,9 +133,7 @@ class _HomePageState extends State<HomePage> {
                               }
                             }
                             // back to screen to pop()
-                            Navigator.of(context)
-                              ..pop()
-                              ..pop();
+                            Navigator.of(context).pop();
                             print('status => $status');
                             print('data => $data');
                           },
