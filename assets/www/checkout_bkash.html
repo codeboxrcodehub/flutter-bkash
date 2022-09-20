@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <title>eBangladesh bKash Payment</title>
+    <meta
+            ,=""
+            content="width=device-width"
+            initial-scale="1.0/"
+            name="viewport"
+    />
+    <meta content="IE=Edge,chrom=1" http-equiv="X-UA-Compatible"/>
+
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <style>
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        p {
+            text-align: center;
+        }
+
+        #bKashFrameWrapper {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+</head>
+
+<body>
+<p>Wait for bKash Payment ....</p>
+<button id="bKash_button" style="display: none;">Pay With bKash</button>
+
+<script type="text/javascript">
+
+    var paymentRequest, paymentConfig;
+    var paymentID, orderNo, accessToken;
+
+
+    window.addEventListener(
+        "flutterInAppWebViewPlatformReady",
+        function (event) {
+            // back data in flutter end as payment status is updated
+            function paymentStatus(status, data) {
+                //js to dart message passing
+                window.flutter_inappwebview.callHandler(
+                    status,
+                    data
+                );
+            }
+
+            //flutter to js message receive for payment request
+            window.flutter_inappwebview
+                .callHandler("paymentData")
+                .then(function (data) {
+                    //set variable 'paymentConfig' and 'paymentRequest' from this request response from
+                    paymentRequest = data.paymentRequest; //done: data.paymentRequest
+                    paymentConfig = data.paymentConfig; //done: uncomment this after done
+                    accessToken = data.accessToken;
+                    orderNo = data.paymentRequest.ref_no;
+
+                    // print to the console the data coming
+                    // from the Flutter side.
+                    console.log("paymentRequest => " + JSON.stringify(paymentRequest));
+                    console.log("paymentConfig => " + JSON.stringify(paymentConfig));
+
+
+                    $.getScript(paymentConfig.scriptUrl).done(function (script, textStatus) {
+                        console.log("bKash script loaded successfully");
+                        bKash.init({
+                            paymentMode: "checkout",
+                            paymentRequest: paymentRequest,
+                            createRequest: function (request) {
+                                console.log("createRequest (request) => " + JSON.stringify(request));
+
+                                $.ajax({
+                                    url: paymentConfig.createCheckoutURL,
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader(
+                                            "Authorization",
+                                            "Bearer " + accessToken
+                                        );
+                                    },
+                                    data: JSON.stringify(request),
+                                    success: function (data) {
+                                        console.log("success createRequest => " + JSON.stringify(data));
+                                        console.log("response type => " + (typeof data));
+
+                                        if(isJsonString(data)){
+                                            data = JSON.parse(data);
+                                        }
+
+                                        if (data && data.paymentID != null) {
+                                            // paymentID = data.paymentID
+                                            console.log("paymentID createRequest =>" + data.paymentID);
+
+                                            paymentID = data.paymentID;
+                                            // orderNo = data.merchantInvoiceNumber;
+                                            //this will create the popup for actual payment screen
+                                            bKash.create().onSuccess(data);
+                                        } else {
+                                            console.log("error paymentId createRequest => ");
+                                            //js to dart
+                                            paymentStatus('paymentFailed', data);
+                                            bKash.create().onError();
+                                        }
+                                    },
+                                    error: function (err) {
+                                        console.log("error createRequest => " + JSON.stringify(err));
+                                        //js to dart
+                                        paymentStatus('paymentError', err);
+                                        bKash.create().onError();
+                                    },
+                                });
+                            },
+
+                            // execute request for bkash payment
+                            executeRequestOnAuthorization: function () {
+                                console.log("executeRequestOnAuthorization => ");
+
+                                $.ajax({
+                                    url: paymentConfig.executeCheckoutURL,
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({
+                                        paymentID: paymentID,
+                                        order_no: orderNo,
+                                    }),
+                                    success: function (data) {
+                                        if(isJsonString(data)){
+                                            data = JSON.parse(data);
+                                        }
+                                        console.log("got data from execute => " + data);
+                                        if (data && data.paymentID != null) {
+                                            console.log("Successfully executed =>" + JSON.stringify(data));
+
+                                            //send message to dart and show order details page from dart and show message that payment successfully done.
+                                            //js to dart
+                                            paymentStatus('paymentSuccess', data);
+
+                                        } else {
+                                            console.log("success error execute => " + JSON.stringify(data));
+                                            //send message to dart, show order details page from dart and show message that payment failed.
+                                            //js to dart
+                                            paymentStatus('paymentFailed', data);
+                                            bKash.execute().onError();
+                                        }
+                                    },
+                                    error: function (err) {
+                                        // paymentStatus = 3;
+                                        console.log("error execute => " + err);
+                                        //js to dart
+                                        //send message to dart and show order details page from dart and show message that order failed.
+                                        paymentStatus('paymentError', err);
+                                        bKash.execute().onError();
+                                    },
+                                });
+                            },
+                            onClose: () => {
+                                //send message to dart and show order details page from dart and show message that payment failed as you closed the window
+                                paymentStatus('paymentClose', 'closedWindow');
+                                console.log("user closed the modal/payment window");
+                            }
+                        });
+
+                        $("#bKash_button").trigger("click");
+
+                    }).fail(function (jqxhr, settings, exception) {
+                        //script loading failed
+                        console.log("script loading failed");
+                        // take back to previous screen and show pop message to user that 'Payment screen loading failed'
+                        paymentStatus('paymentClose', 'scriptLoadedFailed');
+                    });
+                });//end event 'requestBkashPayment'
+
+            // if the data is string the convert to json object otherwise return false
+            function isJsonString(str) {
+                try {
+                    JSON.parse(str);
+                } catch (e) {
+                    return false;
+                }
+                return true;
+            }
+
+        }//end event 'flutterInAppWebViewPlatformReady'
+    );
+
+    //$(document).ready(function () {});
+</script>
+</body>
+</html>
