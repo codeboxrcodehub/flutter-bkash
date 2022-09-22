@@ -19,7 +19,7 @@ class Style {
         msg: toast,
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
+        timeInSecForIosWeb: 10,
         backgroundColor: toast == toast ? Colors.red : Colors.red,
         textColor: Colors.white);
   }
