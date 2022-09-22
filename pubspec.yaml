@@ -1,6 +1,6 @@
 name: flutter_bkash
-description: A new Flutter package project.
-version: 0.0.1
+description: Flutter package for payment gateway bKash(Bangladesh). # TODO: Description length is between 60 to 180 characters.
+version: 0.1.0
 homepage: https://github.com/codeboxrcodehub/flutter-bkash
 
 environment:
