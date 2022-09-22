@@ -1,8 +1,17 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+<p align="center" >
+  <img src="https://www.bkash.com/sites/all/themes/bkash/logo.png?87980">
+</p>
 
-For information about how to write a good package README, see the guide for
+ <h1 align="center">bKash(BD) Mobile Finance Payment Gateway for Flutter</h1>
+<p align="center" >
+<img src="#" />
+<img src="#" />
+</p>
+
+This is a Flutter package for [bKash](https://www.bkash.com/)) BD Payment Gateway. This package can be used in flutter project. We created this package while working for a project and thought to made it release for all so that it helps. 
+<!--
+
+
 [writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
 
 For general information about developing packages, see the Dart guide for
