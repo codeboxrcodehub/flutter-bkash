@@ -144,32 +144,33 @@ class HomePageState extends State<HomePage> {
                   // Goto BkashPayment page & pass the params
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => BkashPayment(
-                        // amount of your bkash payment
+                        isSandbox: true,
+                        /// amount of your bkash payment
                         amount: amount,
-                        // intent would be (sale / authorization)
+                        /// intent would be (sale / authorization)
                         intent: intent,
-                        // accessToken: '', // if the user have own access token for verify payment
+                        // accessToken: '', /// if the user have own access token for verify payment
                         // currency: 'BDT',
-                        // bkash url for create payment, when you implement on you project then it be change as your production create url
+                        /// bkash url for create payment, when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
                         createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
-                        // bkash url for execute payment, , when you implement on you project then it be change as your production create url
+                        /// bkash url for execute payment, , when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
                         executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
-                        // for script url, when you implement on production the set it live script js
+                        /// for script url, when you implement on production the set it live script js (https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-pay.js)
                         scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
-                        // the return value from the package
-                        // status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
-                        // data => return value of response
+                        /// the return value from the package
+                        /// status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
+                        /// data => return value of response
                         paymentStatus: (status, data) {
                           dev.log('return status => $status');
                           dev.log('return data => $data');
-                          // when payment success
+                          /// when payment success
                           if (status == 'paymentSuccess') {
                             if (data['transactionStatus'] == 'Completed') {
                               Style.basicToast('Payment Success');
                             }
                           }
 
-                          // when payment failed
+                          /// when payment failed
                           else if (status == 'paymentFailed') {
                             if (data.isEmpty) {
                               Style.errorToast('Payment Failed');

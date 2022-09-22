@@ -2,23 +2,37 @@ library flutter_bkash;
 
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
+import 'package:flutter_bkash/src/constants.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 typedef PaymentStatus<A, B> = void Function(A status, B data);
 
 class BkashPayment extends StatefulWidget {
+
+  /// default the sandbox is true
+  final bool isSandbox;
+  /// amount of the payment through bKash
   final String amount;
+  /// intent as sale or authorization
   final String intent;
+  /// reference no is order no or any other unique string for payment
   final String? refNo;
+  /// BDT
   final String? currency;
+  /// if the user have own access token for verify payment
   final String? accessToken;
+  /// create bkash url based on sandbox or production
   final String createBKashUrl;
+  /// execute bkash url based on sandbox or production
   final String executeBKashUrl;
+  /// javascript script url for load modal window for bkash payment
   final String scriptUrl;
+  /// return the payment status
   final PaymentStatus<String, dynamic> paymentStatus;
 
   const BkashPayment({
     Key? key,
+    required this.isSandbox,
     required this.amount,
     required this.intent,
     this.refNo,
@@ -38,6 +52,7 @@ class BkashPaymentState extends State<BkashPayment> {
   InAppWebViewController? webViewController;
 
   bool isLoading = true;
+  // define the payment empty dynamic variable for payment data
   var paymentData = {};
 
   // payment handler as payment status
@@ -52,14 +67,15 @@ class BkashPaymentState extends State<BkashPayment> {
     // payment data create as like below
     paymentData = {
       'paymentRequest': {
-        'amount': widget.amount, // amount for payment
-        'intent': widget.intent, // sale
-        'ref_no': widget.refNo ?? '', // order no
-        'currency': widget.currency ?? '' // BDT
+        'amount': widget.amount,
+        'intent': widget.intent,
+        'ref_no': widget.refNo ?? '',
+        'currency': widget.currency ?? '',
       },
       'paymentConfig': {
-        'createCheckoutURL': widget.createBKashUrl,
-        'executeCheckoutURL': widget.executeBKashUrl,
+        /// sandbox is sandbox or live mode, change the value depend on it
+        'createCheckoutURL': widget.isSandbox ? BkashConstants.sandboxCreateUrlBKash : widget.createBKashUrl,
+        'executeCheckoutURL': widget.isSandbox? BkashConstants.sandboxExecuteUrlBKash : widget.executeBKashUrl,
         'scriptUrl': widget.scriptUrl,
       },
       'accessToken': widget.accessToken ?? '',
@@ -74,7 +90,7 @@ class BkashPaymentState extends State<BkashPayment> {
       // appBar: AppBar(title: const Text('bKash Checkout')),
       appBar: AppBar(
           elevation: 0.0,
-          backgroundColor: Colors.redAccent,
+          backgroundColor: Colors.pink,
           automaticallyImplyLeading: true,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -105,28 +121,20 @@ class BkashPaymentState extends State<BkashPayment> {
             ),
             onWebViewCreated: (controller) {
               webViewController = controller;
-              //sending data from dart to js
+              //sending data from dart to js the data of payment
               controller.addJavaScriptHandler(
                   handlerName: 'paymentData',
                   callback: (args) {
                     // return data to the JavaScript side!
                     return paymentData;
                   });
-
-              controller.addJavaScriptHandler(
-                  handlerName: 'accessToken',
-                  callback: (args) {
-                    // return data to the JavaScript side!
-                    return widget.accessToken;
-                  });
-
               controller.clearCache();
             },
 
             onLoadStop: ((controller, url) {
               // print('url $url');
 
-              // for payment success
+              /// for payment success
               controller.addJavaScriptHandler(
                   handlerName: 'paymentSuccess',
                   callback: (success) {
@@ -134,7 +142,7 @@ class BkashPaymentState extends State<BkashPayment> {
                     _paymentHandler('paymentSuccess', success[0]);
                   });
 
-              // for payment failed
+              /// for payment failed
               controller.addJavaScriptHandler(
                   handlerName: 'paymentFailed',
                   callback: (failed) {
@@ -142,7 +150,7 @@ class BkashPaymentState extends State<BkashPayment> {
                     _paymentHandler('paymentFailed', failed);
                   });
 
-              // for payment error
+              /// for payment error
               controller.addJavaScriptHandler(
                   handlerName: 'paymentError',
                   callback: (error) {
@@ -150,7 +158,7 @@ class BkashPaymentState extends State<BkashPayment> {
                     _paymentHandler('paymentError', error[0]);
                   });
 
-              // for payment failed
+              /// for payment failed
               controller.addJavaScriptHandler(
                   handlerName: 'paymentClose',
                   callback: (close) {
@@ -158,11 +166,12 @@ class BkashPaymentState extends State<BkashPayment> {
                     _paymentHandler('paymentClose', close[0]);
                   });
 
+              /// set state is loading or not loading depend on page data
               setState(() => isLoading = false);
             }),
 
             onConsoleMessage: (controller, consoleMessage) {
-              // for view the console log as message on flutter side
+              /// for view the console log as message on flutter side
               dev.log(consoleMessage.toString());
             },
           ),
