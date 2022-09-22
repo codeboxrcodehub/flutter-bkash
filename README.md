@@ -60,7 +60,8 @@ BkashPayment(
     scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',  
       
     // the return value from the package  
-    // status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose' // data => return value of response  paymentStatus: (status, data) {  
+    // status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose' // data => return value of response  
+    paymentStatus: (status, data) {  
     dev.log('return status => $status');  
     dev.log('return data => $data');
 
