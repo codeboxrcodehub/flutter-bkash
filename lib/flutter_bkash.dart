@@ -1,6 +1,5 @@
 library flutter_bkash;
 
-
 import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -32,10 +31,10 @@ class BkashPayment extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _BkashPaymentState createState() => _BkashPaymentState();
+  BkashPaymentState createState() => BkashPaymentState();
 }
 
-class _BkashPaymentState extends State<BkashPayment> {
+class BkashPaymentState extends State<BkashPayment> {
   InAppWebViewController? webViewController;
 
   bool isLoading = true;
@@ -172,4 +171,3 @@ class _BkashPaymentState extends State<BkashPayment> {
     );
   }
 }
-
