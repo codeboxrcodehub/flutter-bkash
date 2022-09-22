@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(title: 'bKash Demo'),
+      home: const HomePage(title: 'bKash Demo'),
     );
   }
 }

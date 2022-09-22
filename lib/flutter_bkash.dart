@@ -47,14 +47,14 @@ class _BkashPaymentState extends State<BkashPayment> {
   @override
   void initState() {
     super.initState();
-    // if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
 
+    // payment data create as like below
     paymentData = {
       'paymentRequest': {
         'amount': widget.amount, // amount for payment
         'intent': widget.intent, // sale
         'ref_no': widget.refNo ?? '', // order no
-        'currency': widget.currency ?? '' // BDT
+        'currency': widget.currency ?? 'BDT' // BDT
       },
       'paymentConfig': {
         'createCheckoutURL': widget.createBKashUrl,
@@ -84,6 +84,7 @@ class _BkashPaymentState extends State<BkashPayment> {
       body: Stack(
         children: [
           InAppWebView(
+            // access the html file on local
             initialFile: "packages/flutter_bkash/assets/www/checkout_bkash.html",
             initialOptions: InAppWebViewGroupOptions(
               crossPlatform: InAppWebViewOptions(
@@ -159,6 +160,7 @@ class _BkashPaymentState extends State<BkashPayment> {
             }),
 
             onConsoleMessage: (controller, consoleMessage) {
+              // for view the console log as message on flutter side
               print(consoleMessage);
             },
           ),

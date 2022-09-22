@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_bkash/flutter_bkash.dart';
 
@@ -17,8 +18,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  TextEditingController _amountController = TextEditingController();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final TextEditingController _amountController = TextEditingController();
 
   Intent _intent = Intent.sale;
   FocusNode? focusNode;
@@ -47,17 +48,31 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Amount :'),
-            TextField(
-              focusNode: focusNode,
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                isDense: true,
-                hintText: "15000",
+            const Text(
+              'Amount :',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              child: TextFormField(
+                focusNode: focusNode,
+                controller: _amountController,
+                decoration: const InputDecoration(
+                  hintText: "1240",
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)), borderSide: BorderSide(color: Colors.grey)),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.pink, width: 2.0),
+                  ),
+                  // hintText: reviewTitle,
+                ),
+                keyboardType: TextInputType.number,
+                maxLines: 1,
+                minLines: 1,
               ),
             ),
-            const SizedBox(height: 100.0),
+            const SizedBox(height: 40.0),
+            const Divider(),
             ListTile(
               title: const Text('Immediate'),
               leading: Radio(
@@ -80,65 +95,87 @@ class _HomePageState extends State<HomePage> {
               ),
               dense: true,
             ),
-            const SizedBox(height: 6.0),
-            TextButton(
-              child: const Text("Checkout"),
-              onPressed: () {
-                String amount = _amountController.text.trim();
-                String intent = _intent == Intent.sale ? "sale" : "authorization";
+            // const SizedBox(height: 6.0),
+            const Divider(),
+            Center(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(3.0),
+                    ),
+                    backgroundColor: Colors.pink),
+                child: const Text(
+                  "Checkout",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  String amount = _amountController.text.trim();
+                  String intent = _intent == Intent.sale ? "sale" : "authorization";
 
-                if (amount.isEmpty) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(const SnackBar(content: Text("Amount is empty. You can't pay through bkash. Try again")));
-                  return;
-                }
-                // remove focus from TextField to hide keyboard
-                focusNode!.unfocus();
-                // Goto BkashPayment page & pass the params
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => BkashPayment(
-                          amount: '20',
-                          intent: 'sale',
-                          createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
-                          executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
-                          scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
-                          paymentStatus: (status, data) {
-                            // when payment success
-                            if (status == 'paymentSuccess') {
-                              if (data['transactionStatus'] == 'Completed') {
-                                Style.basicToast('Payment Success');
+                  if (amount.isEmpty) {
+                    // if the amount is empty then show the snack-bar
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(const SnackBar(content: Text("Amount is empty. Without amount you can't pay. Try again")));
+                    return;
+                  }
+                  // remove focus from TextField to hide keyboard
+                  focusNode!.unfocus();
+                  // Goto BkashPayment page & pass the params
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => BkashPayment(
+                            // amount of your bkash payment
+                            amount: amount,
+                            // intent would be (sale / authorization)
+                            intent: intent,
+                            // accessToken: '', // if the user have own access token for verify payment
+                            currency: 'BDT',
+                            // bkash url for create payment, when you implement on you project then it be change as your production create url
+                            createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
+                            // bkash url for execute payment, , when you implement on you project then it be change as your production create url
+                            executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
+                            // for script url, when you implement on production the set it live script js
+                            scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
+                            // the return value from the package
+                            // status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
+                            // data => return value of response
+                            paymentStatus: (status, data) {
+                              dev.log('return status => $status');
+                              dev.log('return data => $data');
+                              // when payment success
+                              if (status == 'paymentSuccess') {
+                                if (data['transactionStatus'] == 'Completed') {
+                                  Style.basicToast('Payment Success');
+                                }
                               }
-                            }
 
-                            // when payment failed
-                            else if (status == 'paymentFailed') {
-                              if (data.isEmpty) {
-                                Style.errorToast('Payment Failed');
-                              } else {
-                                Style.errorToast("Payment Failed ${data[0]['errorMessage']}");
+                              // when payment failed
+                              else if (status == 'paymentFailed') {
+                                if (data.isEmpty) {
+                                  Style.errorToast('Payment Failed');
+                                } else {
+                                  Style.errorToast("Payment Failed ${data[0]['errorMessage']}");
+                                }
                               }
-                            }
 
-                            // when payment on error
-                            else if (status == 'paymentError') {
-                              Style.errorToast(jsonDecode(data['responseText'])['error']);
-                            }
-
-                            // when payment close on demand closed the windows
-                            else if (status == 'paymentClose') {
-                              if (data == 'closedWindow') {
-                                Style.errorToast('Failed to payment, closed screen');
-                              } else if (data == 'scriptLoadedFailed') {
-                                Style.errorToast('Payment screen loading failed');
+                              // when payment on error
+                              else if (status == 'paymentError') {
+                                Style.errorToast(jsonDecode(data['responseText'])['error']);
                               }
-                            }
-                            // back to screen to pop()
-                            Navigator.of(context).pop();
-                            print('status => $status');
-                            print('data => $data');
-                          },
-                        )));
-              },
+
+                              // when payment close on demand closed the windows
+                              else if (status == 'paymentClose') {
+                                if (data == 'closedWindow') {
+                                  Style.errorToast('Failed to payment, closed screen');
+                                } else if (data == 'scriptLoadedFailed') {
+                                  Style.errorToast('Payment screen loading failed');
+                                }
+                              }
+                              // back to screen to pop()
+                              Navigator.of(context).pop();
+                            },
+                          )));
+                },
+              ),
             )
           ],
         ),
