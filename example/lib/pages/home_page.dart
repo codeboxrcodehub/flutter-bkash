@@ -95,7 +95,6 @@ class _HomePageState extends State<HomePage> {
               ),
               dense: true,
             ),
-            // const SizedBox(height: 6.0),
             const Divider(),
             Center(
               child: TextButton(
@@ -128,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                             // intent would be (sale / authorization)
                             intent: intent,
                             // accessToken: '', // if the user have own access token for verify payment
-                            currency: 'BDT',
+                            // currency: 'BDT',
                             // bkash url for create payment, when you implement on you project then it be change as your production create url
                             createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
                             // bkash url for execute payment, , when you implement on you project then it be change as your production create url
@@ -152,8 +151,10 @@ class _HomePageState extends State<HomePage> {
                               else if (status == 'paymentFailed') {
                                 if (data.isEmpty) {
                                   Style.errorToast('Payment Failed');
-                                } else {
+                                } else if (data[0]['errorMessage'].toString() != 'null'){
                                   Style.errorToast("Payment Failed ${data[0]['errorMessage']}");
+                                } else {
+                                  Style.errorToast("Payment Failed");
                                 }
                               }
 

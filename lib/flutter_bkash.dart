@@ -1,5 +1,7 @@
 library flutter_bkash;
 
+
+import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -41,7 +43,7 @@ class _BkashPaymentState extends State<BkashPayment> {
 
   // payment handler as payment status
   void _paymentHandler(status, data) {
-    widget.paymentStatus?.call(status, data);
+    widget.paymentStatus.call(status, data);
   }
 
   @override
@@ -54,7 +56,7 @@ class _BkashPaymentState extends State<BkashPayment> {
         'amount': widget.amount, // amount for payment
         'intent': widget.intent, // sale
         'ref_no': widget.refNo ?? '', // order no
-        'currency': widget.currency ?? 'BDT' // BDT
+        'currency': widget.currency ?? '' // BDT
       },
       'paymentConfig': {
         'createCheckoutURL': widget.createBKashUrl,
@@ -161,7 +163,7 @@ class _BkashPaymentState extends State<BkashPayment> {
 
             onConsoleMessage: (controller, consoleMessage) {
               // for view the console log as message on flutter side
-              print(consoleMessage);
+              dev.log(consoleMessage.toString());
             },
           ),
           isLoading ? const Center(child: CircularProgressIndicator()) : Container(),
