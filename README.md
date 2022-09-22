@@ -29,7 +29,7 @@ This will add a line like this to your package's `pubspec.yaml` (and run an impl
 
 ```
 dependencies:
-    flutter_bkash: ^0.1.0
+    flutter_bkash: ^0.1.1
 ```
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.
