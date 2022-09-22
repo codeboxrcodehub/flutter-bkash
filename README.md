@@ -46,58 +46,59 @@ examples for see the `/example` folder.
 
 **Here is the example code**
 ```
-    BkashPayment(  
-      // amount of your bkash payment  
-      amount: '20',  
-      // intent would be (sale / authorization)  
-      intent: 'sale',  
-      // accessToken: '', // if the user have own access token for verify payment  
-      // currency: 'BDT', // bkash url for create payment, when you implement on you project then it be change as your production create url  createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',  
-      // bkash url for execute payment, , when you implement on you project then it be change as your production create url  
-      executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',  
-      // for script url, when you implement on production the set it live script js  
-      scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',  
+BkashPayment(  
+    // amount of your bkash payment  
+    amount: '20',  
+    // intent would be (sale / authorization)  
+    intent: 'sale',  
+    // accessToken: '', // if the user have own access token for verify payment  
+    // currency: 'BDT', // bkash url for create payment, when you implement on you project then it be change as your production create url  
+    createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',  
+    // bkash url for execute payment, , when you implement on you project then it be change as your production create url  
+    executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',  
+    // for script url, when you implement on production the set it live script js  
+    scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',  
       
-      // the return value from the package  
-      // status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose' // data => return value of response  paymentStatus: (status, data) {  
-      dev.log('return status => $status');  
-      dev.log('return data => $data');
+    // the return value from the package  
+    // status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose' // data => return value of response  paymentStatus: (status, data) {  
+    dev.log('return status => $status');  
+    dev.log('return data => $data');
 
-      // when payment success  
-      if (status == 'paymentSuccess') {  
-        if (data['transactionStatus'] == 'Completed') {  
-             Style.basicToast('Payment Success');  
-          }  
-      }  
+    // when payment success  
+    if (status == 'paymentSuccess') {
+        if (data['transactionStatus'] == 'Completed') {
+            Style.basicToast('Payment Success');  
+        }
+    }  
       
-      // when payment failed  
-      else if (status == 'paymentFailed') {  
-        if (data.isEmpty) {  
-            Style.errorToast('Payment Failed');  
-          } else if (data[0]['errorMessage'].toString() != 'null'){  
-            Style.errorToast("Payment Failed ${data[0]['errorMessage']}");  
-          } else {  
-            Style.errorToast("Payment Failed");  
-          }  
-      }  
+    // when payment failed  
+    else if (status == 'paymentFailed') {
+        if (data.isEmpty) {
+            Style.errorToast('Payment Failed');
+        } else if (data[0]['errorMessage'].toString() != 'null'){
+            Style.errorToast("Payment Failed ${data[0]['errorMessage']}");
+        } else {  
+            Style.errorToast("Payment Failed");
+        }
+    }  
       
-      // when payment on error  
-      else if (status == 'paymentError') {  
-        Style.errorToast(jsonDecode(data['responseText'])['error']);  
-        }  
+    // when payment on error  
+    else if (status == 'paymentError') {
+        Style.errorToast(jsonDecode(data['responseText'])['error']);
+    }  
       
-      // when payment close on demand closed the windows  
-      else if (status == 'paymentClose') {  
-        if (data == 'closedWindow') {  
-            Style.errorToast('Failed to payment, closed screen');  
-          } else if (data == 'scriptLoadedFailed') {  
-            Style.errorToast('Payment screen loading failed');  
-          }  
-      }  
-      // back to screen to pop()  
-      Navigator.of(context).pop();  
-      },  
-    )
+    // when payment close on demand closed the windows  
+    else if (status == 'paymentClose') {
+        if (data == 'closedWindow') {
+            Style.errorToast('Failed to payment, closed screen');
+        } else if (data == 'scriptLoadedFailed') {
+            Style.errorToast('Payment screen loading failed');
+        }
+    }
+    // back to screen to pop()
+    Navigator.of(context).pop();
+    },
+)
 ```
 
 ### Importance Notes
