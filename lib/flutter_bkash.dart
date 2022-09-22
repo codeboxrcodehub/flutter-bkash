@@ -86,7 +86,8 @@ class BkashPaymentState extends State<BkashPayment> {
         children: [
           InAppWebView(
             // access the html file on local
-            initialFile: "packages/flutter_bkash/assets/www/checkout_bkash.html",
+            initialFile:
+                "packages/flutter_bkash/assets/www/checkout_bkash.html",
             initialOptions: InAppWebViewGroupOptions(
               crossPlatform: InAppWebViewOptions(
                 useShouldOverrideUrlLoading: true,
@@ -165,7 +166,9 @@ class BkashPaymentState extends State<BkashPayment> {
               dev.log(consoleMessage.toString());
             },
           ),
-          isLoading ? const Center(child: CircularProgressIndicator()) : Container(),
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Container(),
         ],
       ),
     );
