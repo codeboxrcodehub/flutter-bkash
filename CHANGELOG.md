@@ -12,3 +12,7 @@
 * Changed the parameter of BkashPayment
 * Added to as isSandbox is true/false
 * Modified the README.md and example of code more comment also style of formatting. 
+
+## 0.1.2
+* Modified the README.md
+* Flutter formats the code [flutter format .]

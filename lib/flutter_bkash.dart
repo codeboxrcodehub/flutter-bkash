@@ -8,25 +8,33 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 typedef PaymentStatus<A, B> = void Function(A status, B data);
 
 class BkashPayment extends StatefulWidget {
-
   /// default the sandbox is true
   final bool isSandbox;
+
   /// amount of the payment through bKash
   final String amount;
+
   /// intent as sale or authorization
   final String intent;
+
   /// reference no is order no or any other unique string for payment
   final String? refNo;
+
   /// BDT
   final String? currency;
+
   /// if the user have own access token for verify payment
   final String? accessToken;
+
   /// create bkash url based on sandbox or production
   final String createBKashUrl;
+
   /// execute bkash url based on sandbox or production
   final String executeBKashUrl;
+
   /// javascript script url for load modal window for bkash payment
   final String scriptUrl;
+
   /// return the payment status
   final PaymentStatus<String, dynamic> paymentStatus;
 
@@ -74,8 +82,12 @@ class BkashPaymentState extends State<BkashPayment> {
       },
       'paymentConfig': {
         /// sandbox is sandbox or live mode, change the value depend on it
-        'createCheckoutURL': widget.isSandbox ? BkashConstants.sandboxCreateUrlBKash : widget.createBKashUrl,
-        'executeCheckoutURL': widget.isSandbox? BkashConstants.sandboxExecuteUrlBKash : widget.executeBKashUrl,
+        'createCheckoutURL': widget.isSandbox
+            ? BkashConstants.sandboxCreateUrlBKash
+            : widget.createBKashUrl,
+        'executeCheckoutURL': widget.isSandbox
+            ? BkashConstants.sandboxExecuteUrlBKash
+            : widget.executeBKashUrl,
         'scriptUrl': widget.scriptUrl,
       },
       'accessToken': widget.accessToken ?? '',

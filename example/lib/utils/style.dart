@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-
 class Style {
-
   static basicToast(String toast) {
     return Fluttertoast.showToast(
         msg: toast,

@@ -5,9 +5,6 @@
  <h1 align="center">bKash(BD) Mobile Finance Payment Gateway Flutter Package</h1>
 <p align="center" >
 
-[//]: # (<img src="#" />)
-[//]: # (<img src="#" />)
-
 </p>
 
 [![Pub](https://img.shields.io/pub/v/flutter_bkash.svg)](https://pub.dartlang.org/packages/flutter_bkash)
@@ -29,7 +26,7 @@ This will add a line like this to your package's `pubspec.yaml` (and run an impl
 
 ```
 dependencies:
-    flutter_bkash: ^0.1.2
+    flutter_bkash: ^0.1.3
 ```
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.

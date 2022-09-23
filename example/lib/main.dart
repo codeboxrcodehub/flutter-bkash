@@ -81,8 +81,11 @@ class HomePageState extends State<HomePage> {
                 controller: _amountController,
                 decoration: const InputDecoration(
                   hintText: "1240",
-                  contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)), borderSide: BorderSide(color: Colors.grey)),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      borderSide: BorderSide(color: Colors.grey)),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.pink, width: 2.0),
                   ),
@@ -131,12 +134,14 @@ class HomePageState extends State<HomePage> {
                 ),
                 onPressed: () {
                   String amount = _amountController.text.trim();
-                  String intent = _intent == Intent.sale ? "sale" : "authorization";
+                  String intent =
+                      _intent == Intent.sale ? "sale" : "authorization";
 
                   if (amount.isEmpty) {
                     // if the amount is empty then show the snack-bar
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(const SnackBar(content: Text("Amount is empty. Without amount you can't pay. Try again")));
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
+                            "Amount is empty. Without amount you can't pay. Try again")));
                     return;
                   }
                   // remove focus from TextField to hide keyboard
@@ -144,61 +149,75 @@ class HomePageState extends State<HomePage> {
                   // Goto BkashPayment page & pass the params
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => BkashPayment(
-                        /// depend isSandbox (true/false)
-                        isSandbox: true,
-                        /// amount of your bkash payment
-                        amount: amount,
-                        /// intent would be (sale / authorization)
-                        intent: intent,
-                        // accessToken: '', /// if the user have own access token for verify payment
-                        // currency: 'BDT',
-                        /// bkash url for create payment, when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
-                        createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
-                        /// bkash url for execute payment, , when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
-                        executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
-                        /// for script url, when you implement on production the set it live script js (https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-pay.js)
-                        scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
-                        /// the return value from the package
-                        /// status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
-                        /// data => return value of response
-                        paymentStatus: (status, data) {
-                          dev.log('return status => $status');
-                          dev.log('return data => $data');
-                          /// when payment success
-                          if (status == 'paymentSuccess') {
-                            if (data['transactionStatus'] == 'Completed') {
-                              Style.basicToast('Payment Success');
-                            }
-                          }
+                            /// depend isSandbox (true/false)
+                            isSandbox: true,
 
-                          /// when payment failed
-                          else if (status == 'paymentFailed') {
-                            if (data.isEmpty) {
-                              Style.errorToast('Payment Failed');
-                            } else if (data[0]['errorMessage'].toString() != 'null'){
-                              Style.errorToast("Payment Failed ${data[0]['errorMessage']}");
-                            } else {
-                              Style.errorToast("Payment Failed");
-                            }
-                          }
+                            /// amount of your bkash payment
+                            amount: amount,
 
-                          // when payment on error
-                          else if (status == 'paymentError') {
-                            Style.errorToast(jsonDecode(data['responseText'])['error']);
-                          }
+                            /// intent would be (sale / authorization)
+                            intent: intent,
+                            // accessToken: '', /// if the user have own access token for verify payment
+                            // currency: 'BDT',
+                            /// bkash url for create payment, when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
+                            createBKashUrl:
+                                'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
 
-                          // when payment close on demand closed the windows
-                          else if (status == 'paymentClose') {
-                            if (data == 'closedWindow') {
-                              Style.errorToast('Failed to payment, closed screen');
-                            } else if (data == 'scriptLoadedFailed') {
-                              Style.errorToast('Payment screen loading failed');
-                            }
-                          }
-                          // back to screen to pop()
-                          Navigator.of(context).pop();
-                        },
-                      )));
+                            /// bkash url for execute payment, , when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
+                            executeBKashUrl:
+                                'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
+
+                            /// for script url, when you implement on production the set it live script js (https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-pay.js)
+                            scriptUrl:
+                                'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
+
+                            /// the return value from the package
+                            /// status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
+                            /// data => return value of response
+                            paymentStatus: (status, data) {
+                              dev.log('return status => $status');
+                              dev.log('return data => $data');
+
+                              /// when payment success
+                              if (status == 'paymentSuccess') {
+                                if (data['transactionStatus'] == 'Completed') {
+                                  Style.basicToast('Payment Success');
+                                }
+                              }
+
+                              /// when payment failed
+                              else if (status == 'paymentFailed') {
+                                if (data.isEmpty) {
+                                  Style.errorToast('Payment Failed');
+                                } else if (data[0]['errorMessage'].toString() !=
+                                    'null') {
+                                  Style.errorToast(
+                                      "Payment Failed ${data[0]['errorMessage']}");
+                                } else {
+                                  Style.errorToast("Payment Failed");
+                                }
+                              }
+
+                              // when payment on error
+                              else if (status == 'paymentError') {
+                                Style.errorToast(
+                                    jsonDecode(data['responseText'])['error']);
+                              }
+
+                              // when payment close on demand closed the windows
+                              else if (status == 'paymentClose') {
+                                if (data == 'closedWindow') {
+                                  Style.errorToast(
+                                      'Failed to payment, closed screen');
+                                } else if (data == 'scriptLoadedFailed') {
+                                  Style.errorToast(
+                                      'Payment screen loading failed');
+                                }
+                              }
+                              // back to screen to pop()
+                              Navigator.of(context).pop();
+                            },
+                          )));
                 },
               ),
             )
