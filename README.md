@@ -2,7 +2,7 @@
   <img src="https://www.bkash.com/sites/all/themes/bkash/logo.png?87980">
 </p>
 
- <h1 align="center">bKash(BD) Mobile Finance Payment Gateway for Flutter</h1>
+ <h1 align="center">bKash(BD) Mobile Finance Payment Gateway Flutter Package</h1>
 <p align="center" >
 
 [//]: # (<img src="#" />)
