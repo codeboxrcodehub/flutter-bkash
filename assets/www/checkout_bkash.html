@@ -56,10 +56,10 @@
                 .callHandler("paymentData")
                 .then(function (data) {
                     //set variable 'paymentConfig' and 'paymentRequest' from this request response from
-                    paymentRequest = data.paymentRequest; //done: data.paymentRequest
-                    paymentConfig = data.paymentConfig; //done: uncomment this after done
-                    accessToken = data.accessToken;
-                    orderNo = data.paymentRequest.ref_no;
+                    paymentRequest = data.paymentRequest; // get data of payment request
+                    paymentConfig = data.paymentConfig; // get data of payment configurations
+                    accessToken = data.accessToken; // get data of access token
+                    orderNo = data.paymentRequest.ref_no; // get the data of order no or references no, need to unique
 
                     // print to the console the data coming
                     // from the Flutter side.
@@ -175,9 +175,9 @@
                         // take back to previous screen and show pop message to user that 'Payment screen loading failed'
                         paymentStatus('paymentClose', 'scriptLoadedFailed');
                     });
-                });//end event 'requestBkashPayment'
+                }); //end event 'requestBkashPayment'
 
-            // if the data is string the convert to json object otherwise return false
+            // if the data is string the convert to json object as return true otherwise return false
             function isJsonString(str) {
                 try {
                     JSON.parse(str);
@@ -187,10 +187,8 @@
                 return true;
             }
 
-        }//end event 'flutterInAppWebViewPlatformReady'
+        }  //end event 'flutterInAppWebViewPlatformReady'
     );
-
-    //$(document).ready(function () {});
 </script>
 </body>
 </html>
