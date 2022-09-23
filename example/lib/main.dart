@@ -144,6 +144,7 @@ class HomePageState extends State<HomePage> {
                   // Goto BkashPayment page & pass the params
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => BkashPayment(
+                        /// depend isSandbox (true/false)
                         isSandbox: true,
                         /// amount of your bkash payment
                         amount: amount,
