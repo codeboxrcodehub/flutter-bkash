@@ -6,5 +6,5 @@ class BkashConstants {
   static const sandboxScriptUrl =
       'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js';
   static const productionScriptUrl =
-      'https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-pay.js';
+      'https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout.js';
 }
