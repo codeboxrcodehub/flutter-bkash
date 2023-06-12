@@ -148,7 +148,7 @@ class HomePageState extends State<HomePage> {
                   focusNode!.unfocus();
                   // Goto BkashPayment page & pass the params
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => BkashPayment(
+                      builder: (context) => FlutterBkash(
                             /// depend isSandbox (true/false)
                             isSandbox: true,
 
