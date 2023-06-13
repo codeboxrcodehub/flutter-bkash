@@ -29,30 +29,31 @@ class BkashApi {
     _payWithoutAgreementApi = PayWithoutAgreementApi(_bkashCredentials);
   }
   // Token related
-  Future<Either<Failure, TokenResponseModel>> createToken() async =>
+  Future<Either<BkashFailure, TokenResponseModel>> createToken() async =>
       await _tokenApi.createToken();
 
-  Future<Either<Failure, TokenResponseModel>> refreshToken(
+  Future<Either<BkashFailure, TokenResponseModel>> refreshToken(
           {required String refreshToken}) async =>
       await _tokenApi.refreshToken(refreshToken: refreshToken);
 
   // create agreement api
-  Future<Either<Failure, CreateAgreementResponseModel>> createAgreement({
+  Future<Either<BkashFailure, CreateAgreementResponseModel>> createAgreement({
     required String idToken,
   }) async =>
       _createAgreementApi.createAgreement(idToken: idToken);
 
-  Future<Either<Failure, ExecuteAgreementResponse>> executeCreateAgreement({
+  Future<Either<BkashFailure, ExecuteAgreementResponse>>
+      executeCreateAgreement({
     required String paymentId,
     required String idToken,
   }) async =>
-      _createAgreementApi.executeCreateAgreement(
-        idToken: idToken,
-        paymentId: paymentId,
-      );
+          _createAgreementApi.executeCreateAgreement(
+            idToken: idToken,
+            paymentId: paymentId,
+          );
 
   // pay with agreement
-  Future<Either<Failure, PayWithAgreementResponseModel>> payWithAgreement({
+  Future<Either<BkashFailure, PayWithAgreementResponseModel>> payWithAgreement({
     required String idToken,
     required String amount,
     required String agreementId,
@@ -65,7 +66,7 @@ class BkashApi {
         marchentInvoiceNumber: marchentInvoiceNumber,
       );
 
-  Future<Either<Failure, PayWithAgreementExecuteResponseModel>>
+  Future<Either<BkashFailure, PayWithAgreementExecuteResponseModel>>
       executePayWithAgreement({
     required String paymentId,
     required String idToken,
@@ -77,18 +78,19 @@ class BkashApi {
 
   // pay without agreement
 
-  Future<Either<Failure, PayWithoutAgreementResponse>> payWithoutAgreement({
+  Future<Either<BkashFailure, PayWithoutAgreementResponse>>
+      payWithoutAgreement({
     required String idToken,
     required String amount,
     required String marchentInvoiceNumber,
   }) async =>
-      await _payWithoutAgreementApi.payWithoutAgreement(
-        idToken: idToken,
-        amount: amount,
-        marchentInvoiceNumber: marchentInvoiceNumber,
-      );
+          await _payWithoutAgreementApi.payWithoutAgreement(
+            idToken: idToken,
+            amount: amount,
+            marchentInvoiceNumber: marchentInvoiceNumber,
+          );
 
-  Future<Either<Failure, PayWithoutAgreementExecuteResponseModel>>
+  Future<Either<BkashFailure, PayWithoutAgreementExecuteResponseModel>>
       executePayWithoutAgreement({
     required String paymentId,
     required String idToken,

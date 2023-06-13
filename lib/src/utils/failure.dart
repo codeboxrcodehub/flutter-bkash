@@ -1,11 +1,11 @@
 import 'dart:developer';
 
-class Failure implements Exception {
+class BkashFailure implements Exception {
   final String message;
   final Object? error;
   final StackTrace? stackTrace;
 
-  Failure({
+  BkashFailure({
     String? message,
     this.error,
     this.stackTrace,
@@ -16,4 +16,16 @@ class Failure implements Exception {
       stackTrace: stackTrace,
     );
   }
+}
+
+class CancelledFailure extends BkashFailure {
+  CancelledFailure({
+    String? message,
+    Object? error,
+    StackTrace? stackTrace,
+  }) : super(
+          message: "User Cancelled Payment",
+          error: error,
+          stackTrace: stackTrace,
+        );
 }

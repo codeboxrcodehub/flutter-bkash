@@ -18,7 +18,7 @@ class TokenApi with ApiHelper {
         "https://tokenized.${_bkashCredentials.isSandbox ? "sandbox" : "pay"}.bka.sh/v1.2.0-beta";
   }
 
-  Future<Either<Failure, TokenResponseModel>> createToken() async {
+  Future<Either<BkashFailure, TokenResponseModel>> createToken() async {
     final headers = {
       "accept": 'application/json',
       "username": _bkashCredentials.username,
@@ -44,7 +44,7 @@ class TokenApi with ApiHelper {
     );
   }
 
-  Future<Either<Failure, TokenResponseModel>> refreshToken({
+  Future<Either<BkashFailure, TokenResponseModel>> refreshToken({
     required String refreshToken,
   }) async {
     final headers = {

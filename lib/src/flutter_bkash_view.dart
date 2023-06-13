@@ -1,77 +1,102 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bkash/src/bkash_credentials.dart';
 import 'package:flutter_bkash/src/bkash_payment_status.dart';
-import 'package:flutter_bkash/src/cubit/payment_cubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 typedef PaymentStatus = void Function(BkashPaymentStatus bkashPaymentStatus);
 
-class FlutterBkash extends StatefulWidget {
-  /// Credential for your bkash marchent
-  final BkashCredentials bkashCredentials;
+class FlutterBkashView extends StatefulWidget {
+  final String bkashURL;
+  final String successCallbackURL;
+  final String failureCallbackURL;
+  final String cancelledCallbackURL;
 
-  /// amount of the payment through bKash
-  final String amount;
-
-  /// return the payment status
-  final PaymentStatus paymentStatus;
-
-  const FlutterBkash({
+  const FlutterBkashView({
     Key? key,
-    required this.paymentStatus,
-    required this.bkashCredentials,
-    required this.amount,
+    required this.bkashURL,
+    required this.successCallbackURL,
+    required this.failureCallbackURL,
+    required this.cancelledCallbackURL,
   }) : super(key: key);
 
   @override
-  FlutterBkashState createState() => FlutterBkashState();
+  FlutterBkashViewState createState() => FlutterBkashViewState();
 }
 
-class FlutterBkashState extends State<FlutterBkash> {
-  late WebViewController webViewController;
+class FlutterBkashViewState extends State<FlutterBkashView> {
+  late WebViewController _webViewController;
 
   @override
   void initState() {
     super.initState();
 
-    webViewController = WebViewController()
+    _webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000));
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          // onProgress: (int progress) {
+          //   log(progress.toString());
+          // },
+          // onPageStarted: (String url) {},
+          // onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) =>
+              Navigator.of(context).pop(BkashPaymentStatus.failed),
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith("https://www.bkash.com/")) {
+              return NavigationDecision.navigate;
+            }
+
+            if (request.url.startsWith(widget.successCallbackURL)) {
+              Navigator.of(context).pop(BkashPaymentStatus.successed);
+            } else if (request.url.startsWith(widget.failureCallbackURL)) {
+              Navigator.of(context).pop(BkashPaymentStatus.failed);
+            } else if (request.url.startsWith(widget.cancelledCallbackURL)) {
+              Navigator.of(context).pop(BkashPaymentStatus.canceled);
+            }
+            return NavigationDecision.prevent;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.bkashURL));
   }
 
   @override
   void dispose() {
-    webViewController.clearCache();
-    webViewController.clearLocalStorage();
+    _webViewController.clearCache();
+    _webViewController.clearLocalStorage();
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PaymentCubit(),
-      child: Builder(builder: (context) {
-        return BlocListener<PaymentCubit, PaymentState>(
-          listener: (context, state) {
-            if(state is PaymentProcessingState)
-          },
-          child: Scaffold(
-            appBar: AppBar(
-                elevation: 0.0,
-                backgroundColor: Colors.pink,
-                automaticallyImplyLeading: true,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  color: Colors.white,
-                  onPressed: () => Navigator.pop(context, true),
-                ),
-                title: const Text('bKash Checkout')),
-            body: WebViewWidget(controller: webViewController),
-          ),
-        );
-      }),
+    return WillPopScope(
+      onWillPop: () async {
+        if (await _webViewController.canGoBack()) {
+          await _webViewController.goBack();
+        }
+
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            elevation: 0.0,
+            backgroundColor: Colors.pink,
+            automaticallyImplyLeading: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              color: Colors.white,
+              onPressed: () =>
+                  Navigator.of(context).pop(BkashPaymentStatus.canceled),
+            ),
+            title: const Text('bKash Checkout')),
+        body: WebViewWidget(controller: _webViewController),
+      ),
     );
   }
+
+  void showSnackBar(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }

@@ -1,1 +1,5 @@
-class BkashPaymentStatus {}
+enum BkashPaymentStatus {
+  failed,
+  canceled,
+  successed,
+}

@@ -19,7 +19,7 @@ class CreateAgreementApi with ApiHelper {
         "https://tokenized.${_bkashCredentials.isSandbox ? "sandbox" : "pay"}.bka.sh/v1.2.0-beta";
   }
 
-  Future<Either<Failure, CreateAgreementResponseModel>> createAgreement({
+  Future<Either<BkashFailure, CreateAgreementResponseModel>> createAgreement({
     required String idToken,
   }) async {
     final headers = {
@@ -48,7 +48,8 @@ class CreateAgreementApi with ApiHelper {
     );
   }
 
-  Future<Either<Failure, ExecuteAgreementResponse>> executeCreateAgreement({
+  Future<Either<BkashFailure, ExecuteAgreementResponse>>
+      executeCreateAgreement({
     required String paymentId,
     required String idToken,
   }) async {

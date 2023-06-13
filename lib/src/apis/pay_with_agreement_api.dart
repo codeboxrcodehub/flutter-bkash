@@ -19,7 +19,7 @@ class PayWithAgreementApi with ApiHelper {
         "https://tokenized.${_bkashCredentials.isSandbox ? "sandbox" : "pay"}.bka.sh/v1.2.0-beta";
   }
 
-  Future<Either<Failure, PayWithAgreementResponseModel>> payWithAgreement({
+  Future<Either<BkashFailure, PayWithAgreementResponseModel>> payWithAgreement({
     required String idToken,
     required String amount,
     required String agreementId,
@@ -55,7 +55,7 @@ class PayWithAgreementApi with ApiHelper {
     );
   }
 
-  Future<Either<Failure, PayWithAgreementExecuteResponseModel>>
+  Future<Either<BkashFailure, PayWithAgreementExecuteResponseModel>>
       executePayWithAgreement({
     required String paymentId,
     required String idToken,
