@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum Intent { sale, authorization }
+enum PaymentType { payWithAgreement, payWithoutAgreement, createAgreement }
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -39,23 +39,9 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _agreementIdController = TextEditingController();
 
-  Intent _intent = Intent.sale;
-  FocusNode? focusNode;
-
-  @override
-  void initState() {
-    super.initState();
-
-    focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    // Clean up the focus node when the Form is disposed.
-    focusNode!.dispose();
-    super.dispose();
-  }
+  PaymentType _paymentType = PaymentType.payWithoutAgreement;
 
   @override
   Widget build(BuildContext context) {
@@ -63,18 +49,19 @@ class HomePageState extends State<HomePage> {
       key: _scaffoldKey,
       appBar: AppBar(title: Text(widget.title)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(80, 40, 80, 40),
+        padding: const EdgeInsets.all(40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Amount :',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              child: TextFormField(
-                focusNode: focusNode,
+            if (_paymentType != PaymentType.createAgreement) ...[
+              const Text(
+                'Amount :',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
                   hintText: "1240",
@@ -92,27 +79,68 @@ class HomePageState extends State<HomePage> {
                 maxLines: 1,
                 minLines: 1,
               ),
-            ),
-            const SizedBox(height: 40.0),
+              if (_paymentType == PaymentType.payWithAgreement) ...[
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text(
+                  'AgreementID :',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextFormField(
+                  controller: _agreementIdController,
+                  decoration: const InputDecoration(
+                    hintText: "User Agreement Id",
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        borderSide: BorderSide(color: Colors.grey)),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.pink, width: 2.0),
+                    ),
+                    // hintText: reviewTitle,
+                  ),
+                  keyboardType: TextInputType.text,
+                  maxLines: 1,
+                  minLines: 1,
+                ),
+              ],
+              const SizedBox(height: 20.0),
+            ],
             const Divider(),
             ListTile(
-              title: const Text('Immediate'),
+              title: const Text('Pay (without agreement)'),
               leading: Radio(
-                value: Intent.sale,
-                groupValue: _intent,
+                value: PaymentType.payWithoutAgreement,
+                groupValue: _paymentType,
                 onChanged: (value) {
-                  setState(() => _intent = value!);
+                  setState(() => _paymentType = value!);
                 },
               ),
               dense: true,
             ),
             ListTile(
-              title: const Text('Auth and Capture'),
+              title: const Text('Pay with Agreement'),
               leading: Radio(
-                value: Intent.authorization,
-                groupValue: _intent,
+                value: PaymentType.payWithAgreement,
+                groupValue: _paymentType,
                 onChanged: (value) {
-                  setState(() => _intent = value!);
+                  setState(() => _paymentType = value!);
+                },
+              ),
+              dense: true,
+            ),
+            ListTile(
+              title: const Text('Create agreement'),
+              leading: Radio(
+                value: PaymentType.createAgreement,
+                groupValue: _paymentType,
+                onChanged: (value) {
+                  setState(() => _paymentType = value!);
                 },
               ),
               dense: true,
@@ -130,39 +158,88 @@ class HomePageState extends State<HomePage> {
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () async {
-                  String amount = _amountController.text.trim();
+                  final flutterBkash = FlutterBkash();
 
-                  if (amount.isEmpty) {
-                    // if the amount is empty then show the snack-bar
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            "Amount is empty. Without amount you can't pay. Try again")));
+                  if (_paymentType == PaymentType.createAgreement) {
+                    try {
+                      // remove focus from TextField to hide keyboard
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      final result =
+                          await flutterBkash.createAgreement(context: context);
+                      dev.log(result.toString());
+                    } on BkashFailure catch (e, st) {
+                      dev.log(e.message, error: e, stackTrace: st);
+                    } catch (e) {
+                      dev.log("Something went wrong");
+                    }
                     return;
                   }
-                  // remove focus from TextField to hide keyboard
-                  focusNode!.unfocus();
-                  // Goto BkashPayment page & pass the params
-                  final flutterBkash = FlutterBkash(
-                    bkashCredentials: BkashCredentials(
-                      username: "sandboxTokenizedUser02",
-                      password: "sandboxTokenizedUser02@12345",
-                      appKey: "4f6o0cjiki2rfm34kfdadl1eqq",
-                      appSecret:
-                          "2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b",
-                      isSandbox: true,
-                    ),
-                  );
+                  if (_paymentType == PaymentType.payWithoutAgreement) {
+                    final amount = _amountController.text.trim();
 
-                  try {
-                    final res = await flutterBkash.pay(
-                      context: context,
-                      amount: 10,
-                      marchentInvoiceNumber: "tranId",
-                    );
+                    if (amount.isEmpty) {
+                      // if the amount is empty then show the snack-bar
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "Amount is empty. Without amount you can't pay. Try again")));
+                      return;
+                    }
+                    // remove focus from TextField to hide keyboard
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    // Goto BkashPayment page & pass the params
 
-                    dev.log(res.toString());
-                  } catch (e) {
-                    dev.log("something went wrong");
+                    try {
+                      final res = await flutterBkash.pay(
+                        context: context,
+                        amount: double.parse(amount),
+                        marchentInvoiceNumber: "tranId",
+                      );
+
+                      dev.log(res.toString());
+                    } on BkashFailure catch (e, st) {
+                      dev.log(e.message, error: e, stackTrace: st);
+                    } catch (e) {
+                      dev.log("Something went wrong");
+                    }
+                  }
+                  if (_paymentType == PaymentType.payWithAgreement) {
+                    final amount = _amountController.text.trim();
+                    final agreementId = _agreementIdController.text.trim();
+
+                    if (amount.isEmpty) {
+                      // if the amount is empty then show the snack-bar
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "Amount is empty. Without amount you can't pay. Try again")));
+                      return;
+                    }
+
+                    if (agreementId.isEmpty) {
+                      // if the agreementId is empty then show the snack-bar
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              "AgreementId is empty. Without AgreementId you can't pay. Try again")));
+                      return;
+                    }
+
+                    // remove focus from TextField to hide keyboard
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    // Goto BkashPayment page & pass the params
+                    try {
+                      final result = await flutterBkash.paywithAgreement(
+                        context: context,
+                        amount: double.parse(amount),
+                        agreementId: agreementId,
+                        marchentInvoiceNumber: "marchentInvoiceNumber",
+                      );
+
+                      dev.log(result.toString());
+                    } on BkashFailure catch (e, st) {
+                      dev.log(e.message, error: e, stackTrace: st);
+                    } catch (e) {
+                      dev.log("Something went wrong");
+                    }
                   }
                 },
               ),

@@ -15,19 +15,18 @@ import 'apis/models/token_response_model.dart';
 import 'utils/failure.dart';
 
 class BkashApi {
-  final BkashCredentials _bkashCredentials;
+  final TokenApi _tokenApi;
+  final CreateAgreementApi _createAgreementApi;
+  final PayWithAgreementApi _payWithAgreementApi;
+  final PayWithoutAgreementApi _payWithoutAgreementApi;
 
-  late TokenApi _tokenApi;
-  late CreateAgreementApi _createAgreementApi;
-  late PayWithAgreementApi _payWithAgreementApi;
-  late PayWithoutAgreementApi _payWithoutAgreementApi;
+  BkashApi({
+    required BkashCredentials bkashCredentials,
+  })  : _tokenApi = TokenApi(bkashCredentials),
+        _createAgreementApi = CreateAgreementApi(bkashCredentials),
+        _payWithAgreementApi = PayWithAgreementApi(bkashCredentials),
+        _payWithoutAgreementApi = PayWithoutAgreementApi(bkashCredentials);
 
-  BkashApi(this._bkashCredentials) {
-    _tokenApi = TokenApi(_bkashCredentials);
-    _createAgreementApi = CreateAgreementApi(_bkashCredentials);
-    _payWithAgreementApi = PayWithAgreementApi(_bkashCredentials);
-    _payWithoutAgreementApi = PayWithoutAgreementApi(_bkashCredentials);
-  }
   // Token related
   Future<Either<BkashFailure, TokenResponseModel>> createToken() async =>
       await _tokenApi.createToken();

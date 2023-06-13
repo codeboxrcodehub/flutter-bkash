@@ -14,8 +14,19 @@ class FlutterBkash {
   late DateTime _tokenValidity;
   Either<BkashFailure, TokenResponseModel>? _token;
 
-  FlutterBkash({required BkashCredentials bkashCredentials})
-      : _bkashApi = BkashApi(bkashCredentials) {
+  FlutterBkash({
+    BkashCredentials? bkashCredentials,
+  }) : _bkashApi = BkashApi(
+          bkashCredentials: bkashCredentials ??
+              const BkashCredentials(
+                username: "sandboxTokenizedUser02",
+                password: "sandboxTokenizedUser02@12345",
+                appKey: "4f6o0cjiki2rfm34kfdadl1eqq",
+                appSecret:
+                    "2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b",
+                isSandbox: true,
+              ),
+        ) {
     _validateToken();
   }
 
@@ -122,7 +133,7 @@ class FlutterBkash {
               );
             }
             if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
-              throw CancelledFailure();
+              throw BkashFailure(message: "Payment Cancelled");
             }
             throw BkashFailure();
           },
@@ -142,7 +153,7 @@ class FlutterBkash {
     required String agreementId,
     required String marchentInvoiceNumber,
   }) async {
-    _validateToken();
+    await _validateToken();
 
     final paymentResponse = await _token?.fold<Future<BkashPaymentResponse>>(
       (l) async => throw l,
@@ -199,7 +210,7 @@ class FlutterBkash {
               );
             }
             if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
-              throw CancelledFailure();
+              throw BkashFailure(message: "Payment Cancelled");
             }
             throw BkashFailure();
           },
@@ -216,7 +227,7 @@ class FlutterBkash {
   Future<BkashAgreementResponse> createAgreement({
     required BuildContext context,
   }) async {
-    _validateToken();
+    await _validateToken();
 
     final paymentResponse = await _token?.fold<Future<BkashAgreementResponse>>(
       (l) async => throw l,
@@ -268,7 +279,7 @@ class FlutterBkash {
               );
             }
             if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
-              throw CancelledFailure();
+              throw BkashFailure(message: "Agreement creation Cancelled");
             }
             throw BkashFailure();
           },

@@ -17,15 +17,3 @@ class BkashFailure implements Exception {
     );
   }
 }
-
-class CancelledFailure extends BkashFailure {
-  CancelledFailure({
-    String? message,
-    Object? error,
-    StackTrace? stackTrace,
-  }) : super(
-          message: "User Cancelled Payment",
-          error: error,
-          stackTrace: stackTrace,
-        );
-}

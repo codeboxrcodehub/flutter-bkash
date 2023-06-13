@@ -5,7 +5,7 @@ class BkashCredentials {
   final String appSecret;
   final bool isSandbox;
 
-  BkashCredentials({
+  const BkashCredentials({
     required this.username,
     required this.password,
     required this.appKey,
