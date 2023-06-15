@@ -29,7 +29,7 @@ This will add a line like this to your package's `pubspec.yaml` (and run an impl
 
 ```
 dependencies:
-    flutter_bkash: ^0.1.3
+    flutter_bkash: ^1.0.0
 ```
 
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more.
@@ -51,71 +51,28 @@ Examples for see the `/example` folder.
 
 **Here is the example code**
 ```
-BkashPayment(  
-    // depend isSandbox (true/false)
-    isSandbox: true,
-    // amount of your bkash payment
-    amount: '20',
-    /// intent would be (sale / authorization)
-    intent: 'sale',
-    // accessToken: '', /// if the user have own access token for verify payment
-    // currency: 'BDT',
-    /// bkash url for create payment, when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
-    createBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
-    /// bkash url for execute payment, , when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
-    executeBKashUrl: 'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
-    /// for script url, when you implement on production the set it live script js (https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-pay.js)
-    scriptUrl: 'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
-    /// the return value from the package
-    /// status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
-    /// data => return value of response
-     
-    paymentStatus: (status, data) {
-    dev.log('return status => $status');  
-    dev.log('return data => $data');
+final flutterBkash = FlutterBkash();
 
-    /// when payment success  
-    if (status == 'paymentSuccess') {
-        if (data['transactionStatus'] == 'Completed') {
-            Style.basicToast('Payment Success');  
-        }
-    }  
-      
-    /// when payment failed  
-    else if (status == 'paymentFailed') {
-        if (data.isEmpty) {
-            Style.errorToast('Payment Failed');
-        } else if (data[0]['errorMessage'].toString() != 'null'){
-            Style.errorToast("Payment Failed ${data[0]['errorMessage']}");
-        } else {  
-            Style.errorToast("Payment Failed");
-        }
-    }  
-      
-    /// when payment on error  
-    else if (status == 'paymentError') {
-        Style.errorToast(jsonDecode(data['responseText'])['error']);
-    }  
-      
-    /// when payment close on demand closed the windows  
-    else if (status == 'paymentClose') {
-        if (data == 'closedWindow') {
-            Style.errorToast('Failed to payment, closed screen');
-        } else if (data == 'scriptLoadedFailed') {
-            Style.errorToast('Payment screen loading failed');
-        }
-    }
-    /// back to screen to pop()
-    Navigator.of(context).pop();
-    },
-)
+try {
+  final bkashPaymentResponse = await flutterBkash.pay(
+    context: context,
+    amount: double.parse(amount),
+    marchentInvoiceNumber: "tranId",
+  );
+
+  print(bkashPaymentResponse);
+} on BkashFailure catch (e, st) {
+  print(e.message, error: e, stackTrace: st);
+} catch (e) {
+  print("Something went wrong");
+}
 ```
 
 ### Importance Notes
 - Read the comments in the example of code
 - See the documents and demo checkout [bKash API Specifications](https://developer.bka.sh/v1.2.0-beta/reference), [bKash Payment Checkout Demo](https://merchantdemo.sandbox.bka.sh/frontend/checkout)
-- **intent** - it would be 'sale' or 'authorization'
-- Payment status return as 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose', find on this keyword of the payment status, then you get the data of response on specific status.
+<!-- - **intent** - it would be 'sale' or 'authorization' -->
+<!-- - Payment status return as 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose', find on this keyword of the payment status, then you get the data of response on specific status. -->
 
 
 ## Contributing

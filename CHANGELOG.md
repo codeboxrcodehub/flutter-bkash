@@ -16,3 +16,7 @@
 ## 0.1.3
 * Modified the README.md
 * Flutter formats the code [flutter format .]
+## 0.1.3
+* Modified the README.md
+* Added Tokenized API feature
+* Changed API of flutter Bkash
