@@ -72,10 +72,11 @@ class FlutterBkash {
     }
   }
 
+  // pay without agreement
   Future<BkashPaymentResponse> pay({
     required BuildContext context,
     required double amount,
-    required String marchentInvoiceNumber,
+    required String merchantInvoiceNumber,
   }) async {
     await _validateToken();
 
@@ -85,7 +86,7 @@ class FlutterBkash {
         final apiResponse = await _bkashApi.payWithoutAgreement(
           idToken: tokenRes.idToken,
           amount: amount.toString(),
-          marchentInvoiceNumber: marchentInvoiceNumber,
+          marchentInvoiceNumber: merchantInvoiceNumber,
         );
 
         return await apiResponse.fold<Future<BkashPaymentResponse>>(
@@ -147,7 +148,8 @@ class FlutterBkash {
     return paymentResponse;
   }
 
-  Future<BkashPaymentResponse> paywithAgreement({
+  // after agreement - pay with agreement
+  Future<BkashPaymentResponse> payWithAgreement({
     required BuildContext context,
     required double amount,
     required String agreementId,
@@ -224,6 +226,7 @@ class FlutterBkash {
     return paymentResponse;
   }
 
+  // create agreement when first time create to agreement
   Future<BkashAgreementResponse> createAgreement({
     required BuildContext context,
   }) async {

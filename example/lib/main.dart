@@ -175,7 +175,13 @@ class HomePageState extends State<HomePage> {
                             setState(() {
                               isLoading = true;
                             });
-                            final flutterBkash = FlutterBkash();
+                            final flutterBkash = FlutterBkash(
+                                bkashCredentials: const BkashCredentials(
+                                    appKey: "",
+                                    appSecret: "",
+                                    password: "",
+                                    username: "",
+                                    isSandbox: false));
 
                             if (_paymentType == PaymentType.createAgreement) {
                               try {
@@ -183,7 +189,9 @@ class HomePageState extends State<HomePage> {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 final result = await flutterBkash
                                     .createAgreement(context: context);
-                                dev.log(result.toString());
+                                dev.log(
+                                    name: "createAgreement -> ",
+                                    result.toString());
                               } on BkashFailure catch (e, st) {
                                 dev.log(e.message, error: e, stackTrace: st);
                               } catch (e) {
@@ -216,11 +224,13 @@ class HomePageState extends State<HomePage> {
                               try {
                                 final res = await flutterBkash.pay(
                                   context: context,
-                                  amount: double.parse(amount),
-                                  marchentInvoiceNumber: "tranId",
+                                  amount: double.parse(amount), // need it double type
+                                  merchantInvoiceNumber: "tranId",
                                 );
 
-                                dev.log(res.toString());
+                                dev.log(
+                                    name: "withoutAgreement -> ",
+                                    res.toString());
                               } on BkashFailure catch (e, st) {
                                 dev.log(e.message, error: e, stackTrace: st);
                               } catch (e) {
@@ -266,12 +276,12 @@ class HomePageState extends State<HomePage> {
                               // Goto BkashPayment page & pass the params
                               try {
                                 final result =
-                                    await flutterBkash.paywithAgreement(
+                                    await flutterBkash.payWithAgreement(
                                   context: context,
                                   amount: double.parse(amount),
                                   agreementId: agreementId,
                                   marchentInvoiceNumber:
-                                      "marchentInvoiceNumber",
+                                      "merchantInvoiceNumber",
                                 );
 
                                 dev.log(result.toString());
