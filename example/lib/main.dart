@@ -175,13 +175,7 @@ class HomePageState extends State<HomePage> {
                             setState(() {
                               isLoading = true;
                             });
-                            final flutterBkash = FlutterBkash(
-                                bkashCredentials: const BkashCredentials(
-                                    appKey: "",
-                                    appSecret: "",
-                                    password: "",
-                                    username: "",
-                                    isSandbox: false));
+                            final flutterBkash = FlutterBkash();
 
                             if (_paymentType == PaymentType.createAgreement) {
                               try {
@@ -189,13 +183,16 @@ class HomePageState extends State<HomePage> {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 final result = await flutterBkash
                                     .createAgreement(context: context);
-                                dev.log(
-                                    name: "createAgreement -> ",
-                                    result.toString());
+                                dev.log(result.toString());
+                                _showSnackbar(
+                                    "(Success) AgreementId: ${result.agreementId}");
                               } on BkashFailure catch (e, st) {
                                 dev.log(e.message, error: e, stackTrace: st);
-                              } catch (e) {
-                                dev.log("Something went wrong");
+                                _showSnackbar(e.message);
+                              } catch (e, st) {
+                                dev.log("Something went wrong",
+                                    error: e, stackTrace: st);
+                                _showSnackbar("Something went wrong");
                               }
                               setState(() {
                                 isLoading = false;
@@ -222,20 +219,23 @@ class HomePageState extends State<HomePage> {
                               // Goto BkashPayment page & pass the params
 
                               try {
-                                final res = await flutterBkash.pay(
+                                final result = await flutterBkash.pay(
                                   context: context,
                                   amount: double.parse(
                                       amount), // need it double type
                                   merchantInvoiceNumber: "tranId",
                                 );
 
-                                dev.log(
-                                    name: "withoutAgreement -> ",
-                                    res.toString());
+                                dev.log(result.toString());
+                                _showSnackbar(
+                                    "(Success) tranId: ${result.trxId}");
                               } on BkashFailure catch (e, st) {
                                 dev.log(e.message, error: e, stackTrace: st);
-                              } catch (e) {
-                                dev.log("Something went wrong");
+                                _showSnackbar(e.message);
+                              } catch (e, st) {
+                                dev.log("Something went wrong",
+                                    error: e, stackTrace: st);
+                                _showSnackbar("Something went wrong");
                               }
                               setState(() {
                                 isLoading = false;
@@ -286,10 +286,15 @@ class HomePageState extends State<HomePage> {
                                 );
 
                                 dev.log(result.toString());
+                                _showSnackbar(
+                                    "(Success) tranId: ${result.trxId}");
                               } on BkashFailure catch (e, st) {
                                 dev.log(e.message, error: e, stackTrace: st);
-                              } catch (e) {
-                                dev.log("Something went wrong");
+                                _showSnackbar(e.message);
+                              } catch (e, st) {
+                                dev.log("Something went wrong",
+                                    error: e, stackTrace: st);
+                                _showSnackbar("Something went wrong");
                               }
                               setState(() {
                                 isLoading = false;
@@ -306,4 +311,8 @@ class HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void _showSnackbar(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }

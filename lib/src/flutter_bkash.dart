@@ -60,7 +60,7 @@ class FlutterBkash {
           (l) async => throw l,
           (apiRes) async {
             if (apiRes.statusCode != "0000") {
-              throw BkashFailure();
+              throw BkashFailure(message: apiRes.statusMessage);
             }
 
             final bkashPaymentStatus = await Navigator.push<BkashPaymentStatus>(
@@ -87,7 +87,7 @@ class FlutterBkash {
                 (r) {
                   // failed to execute
                   if (r.statusCode != "0000") {
-                    throw BkashFailure();
+                    throw BkashFailure(message: r.statusMessage);
                   }
                   return BkashPaymentResponse(
                     r.paymentExecuteTime,
@@ -103,7 +103,7 @@ class FlutterBkash {
             if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
               throw BkashFailure(message: "Payment Cancelled");
             }
-            throw BkashFailure();
+            throw BkashFailure(message: "Payment Failed");
           },
         );
       },
@@ -138,7 +138,7 @@ class FlutterBkash {
           (l) async => throw l,
           (agrRes) async {
             if (agrRes.statusCode != "0000") {
-              throw BkashFailure();
+              throw BkashFailure(message: agrRes.statusMessage);
             }
 
             final bkashPaymentStatus = await Navigator.push<BkashPaymentStatus>(
@@ -165,7 +165,7 @@ class FlutterBkash {
                 (r) {
                   // failed to execute
                   if (r.statusCode != "0000") {
-                    throw BkashFailure();
+                    throw BkashFailure(message: r.statusMessage);
                   }
                   return BkashAgreementResponse(
                     r.agreementExecuteTime,
@@ -180,7 +180,7 @@ class FlutterBkash {
             if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
               throw BkashFailure(message: "Agreement creation Cancelled");
             }
-            throw BkashFailure();
+            throw BkashFailure(message: "Agreement creation Failed");
           },
         );
       },
@@ -217,7 +217,7 @@ class FlutterBkash {
           (l) async => throw l,
           (apiRes) async {
             if (apiRes.statusCode != "0000") {
-              throw BkashFailure();
+              throw BkashFailure(message: apiRes.statusMessage);
             }
 
             final bkashPaymentStatus = await Navigator.push<BkashPaymentStatus>(
@@ -244,7 +244,7 @@ class FlutterBkash {
                 (r) {
                   // failed to execute
                   if (r.statusCode != "0000") {
-                    throw BkashFailure();
+                    throw BkashFailure(message: r.statusMessage);
                   }
                   return BkashPaymentResponse(
                     r.paymentExecuteTime,
