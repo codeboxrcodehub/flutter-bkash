@@ -23,6 +23,7 @@ class PayWithoutAgreementApi with ApiHelper {
       payWithoutAgreement({
     required String idToken,
     required String amount,
+    required String payerReference,
     required String marchentInvoiceNumber,
   }) async {
     final headers = {
@@ -33,7 +34,7 @@ class PayWithoutAgreementApi with ApiHelper {
     };
     final body = {
       "mode": '0011',
-      "payerReference": ' ',
+      "payerReference": payerReference,
       "callbackURL": 'https://example.com/',
       "amount": amount,
       "currency": 'BDT',

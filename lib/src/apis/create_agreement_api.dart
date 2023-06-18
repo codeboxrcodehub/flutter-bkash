@@ -21,6 +21,7 @@ class CreateAgreementApi with ApiHelper {
 
   Future<Either<BkashFailure, CreateAgreementResponseModel>> createAgreement({
     required String idToken,
+    required String payerReference,
   }) async {
     final headers = {
       "accept": 'application/json',
@@ -30,7 +31,7 @@ class CreateAgreementApi with ApiHelper {
     };
     final body = {
       "mode": '0000',
-      "payerReference": ' ',
+      "payerReference": payerReference,
       "callbackURL": 'https://example.com/',
     };
 

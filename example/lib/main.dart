@@ -224,7 +224,8 @@ class HomePageState extends State<HomePage> {
                               try {
                                 final res = await flutterBkash.pay(
                                   context: context,
-                                  amount: double.parse(amount), // need it double type
+                                  amount: double.parse(
+                                      amount), // need it double type
                                   merchantInvoiceNumber: "tranId",
                                 );
 

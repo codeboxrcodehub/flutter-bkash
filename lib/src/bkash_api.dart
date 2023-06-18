@@ -38,8 +38,12 @@ class BkashApi {
   // create agreement api
   Future<Either<BkashFailure, CreateAgreementResponseModel>> createAgreement({
     required String idToken,
+    required String payerReference,
   }) async =>
-      _createAgreementApi.createAgreement(idToken: idToken);
+      _createAgreementApi.createAgreement(
+        idToken: idToken,
+        payerReference: payerReference,
+      );
 
   Future<Either<BkashFailure, ExecuteAgreementResponse>>
       executeCreateAgreement({
@@ -81,11 +85,13 @@ class BkashApi {
       payWithoutAgreement({
     required String idToken,
     required String amount,
+    required String payerReference,
     required String marchentInvoiceNumber,
   }) async =>
           await _payWithoutAgreementApi.payWithoutAgreement(
             idToken: idToken,
             amount: amount,
+            payerReference: payerReference,
             marchentInvoiceNumber: marchentInvoiceNumber,
           );
 

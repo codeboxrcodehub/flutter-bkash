@@ -10,8 +10,13 @@ import 'bkash_payment_status.dart';
 import 'utils/failure.dart';
 
 class FlutterBkash {
+  // All Bkash apis
   final BkashApi _bkashApi;
+
+  // Token is invalid after this time
   late DateTime _tokenValidity;
+
+  // Token for calling bkash apis
   Either<BkashFailure, TokenResponseModel>? _token;
 
   FlutterBkash({
@@ -26,57 +31,18 @@ class FlutterBkash {
                     "2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b",
                 isSandbox: true,
               ),
-        ) {
-    _validateToken();
-  }
+        );
 
-  Future<void> _validateToken() async {
-    if (_token == null) {
-      final tokenResponse = await _bkashApi.createToken();
-      _token = tokenResponse.fold(
-        (l) => left(l),
-        (r) {
-          if (r.statusCode != "0000") {
-            return left(BkashFailure(message: r.statusMessage));
-          }
-          _tokenValidity = DateTime.now()
-              .add(Duration(seconds: r.expiresIn))
-              .subtract(const Duration(minutes: 5));
-          return right(r);
-        },
-      );
-    } else {
-      if (DateTime.now().isBefore(_tokenValidity)) {
-        return;
-      }
-      _token = await _token?.fold(
-        (l) async => left(l),
-        (r) async {
-          final newToken =
-              await _bkashApi.refreshToken(refreshToken: r.refreshToken);
-
-          return newToken.fold(
-            (l) => left(l),
-            (r) {
-              if (r.statusCode != "0000") {
-                return left(BkashFailure(message: r.statusMessage));
-              }
-              _tokenValidity = DateTime.now()
-                  .add(Duration(seconds: r.expiresIn))
-                  .subtract(const Duration(minutes: 5));
-              return right(r);
-            },
-          );
-        },
-      );
-    }
-  }
-
-  // pay without agreement
+  /// Call this function for Create-Payment (Mentioned in Bkash Doc)
+  ///
+  /// Throws [BkashFailure] for error with a user-friendly message
+  ///
+  /// Provide User Phonenumber for [payerReference]
   Future<BkashPaymentResponse> pay({
     required BuildContext context,
     required double amount,
     required String merchantInvoiceNumber,
+    String payerReference = " ",
   }) async {
     await _validateToken();
 
@@ -86,6 +52,7 @@ class FlutterBkash {
         final apiResponse = await _bkashApi.payWithoutAgreement(
           idToken: tokenRes.idToken,
           amount: amount.toString(),
+          payerReference: payerReference,
           marchentInvoiceNumber: merchantInvoiceNumber,
         );
 
@@ -148,7 +115,86 @@ class FlutterBkash {
     return paymentResponse;
   }
 
-  // after agreement - pay with agreement
+  /// Call this function to Create an AgreementId
+  ///
+  /// Throws [BkashFailure] for error with a user-friendly message
+  ///
+  /// Provide User Phonenumber for [payerReference]
+  Future<BkashAgreementResponse> createAgreement({
+    required BuildContext context,
+    String payerReference = " ",
+  }) async {
+    await _validateToken();
+
+    final paymentResponse = await _token?.fold<Future<BkashAgreementResponse>>(
+      (l) async => throw l,
+      (tokenRes) async {
+        final agreementResponse = await _bkashApi.createAgreement(
+          idToken: tokenRes.idToken,
+          payerReference: payerReference,
+        );
+
+        return await agreementResponse.fold<Future<BkashAgreementResponse>>(
+          (l) async => throw l,
+          (agrRes) async {
+            if (agrRes.statusCode != "0000") {
+              throw BkashFailure();
+            }
+
+            final bkashPaymentStatus = await Navigator.push<BkashPaymentStatus>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FlutterBkashView(
+                      bkashURL: agrRes.bkashURL,
+                      failureCallbackURL: agrRes.failureCallbackURL,
+                      successCallbackURL: agrRes.successCallbackURL,
+                      cancelledCallbackURL: agrRes.cancelledCallbackURL,
+                    ),
+                  ),
+                ) ??
+                BkashPaymentStatus.canceled;
+
+            if (bkashPaymentStatus == BkashPaymentStatus.successed) {
+              final result = await _bkashApi.executeCreateAgreement(
+                paymentId: agrRes.paymentID,
+                idToken: tokenRes.idToken,
+              );
+
+              return result.fold<BkashAgreementResponse>(
+                (l) => throw l,
+                (r) {
+                  // failed to execute
+                  if (r.statusCode != "0000") {
+                    throw BkashFailure();
+                  }
+                  return BkashAgreementResponse(
+                    r.agreementExecuteTime,
+                    payerReference: r.payerReference,
+                    paymentId: r.paymentID,
+                    customerMsisdn: r.customerMsisdn,
+                    agreementId: r.agreementID,
+                  );
+                },
+              );
+            }
+            if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
+              throw BkashFailure(message: "Agreement creation Cancelled");
+            }
+            throw BkashFailure();
+          },
+        );
+      },
+    );
+
+    if (paymentResponse == null) {
+      throw BkashFailure();
+    }
+    return paymentResponse;
+  }
+
+  /// Call this Fucntion to Pay with AgreementId
+  ///
+  /// Throws [BkashFailure] for error with a user-friendly message
   Future<BkashPaymentResponse> payWithAgreement({
     required BuildContext context,
     required double amount,
@@ -226,73 +272,45 @@ class FlutterBkash {
     return paymentResponse;
   }
 
-  // create agreement when first time create to agreement
-  Future<BkashAgreementResponse> createAgreement({
-    required BuildContext context,
-  }) async {
-    await _validateToken();
+  Future<void> _validateToken() async {
+    if (_token == null) {
+      final tokenResponse = await _bkashApi.createToken();
+      _token = tokenResponse.fold(
+        (l) => left(l),
+        (r) {
+          if (r.statusCode != "0000") {
+            return left(BkashFailure(message: r.statusMessage));
+          }
+          _tokenValidity = DateTime.now()
+              .add(Duration(seconds: r.expiresIn))
+              .subtract(const Duration(minutes: 5));
+          return right(r);
+        },
+      );
+    } else {
+      if (DateTime.now().isBefore(_tokenValidity)) {
+        return;
+      }
+      _token = await _token?.fold(
+        (l) async => left(l),
+        (r) async {
+          final newToken =
+              await _bkashApi.refreshToken(refreshToken: r.refreshToken);
 
-    final paymentResponse = await _token?.fold<Future<BkashAgreementResponse>>(
-      (l) async => throw l,
-      (tokenRes) async {
-        final agreementResponse =
-            await _bkashApi.createAgreement(idToken: tokenRes.idToken);
-
-        return await agreementResponse.fold<Future<BkashAgreementResponse>>(
-          (l) async => throw l,
-          (agrRes) async {
-            if (agrRes.statusCode != "0000") {
-              throw BkashFailure();
-            }
-
-            final bkashPaymentStatus = await Navigator.push<BkashPaymentStatus>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FlutterBkashView(
-                      bkashURL: agrRes.bkashURL,
-                      failureCallbackURL: agrRes.failureCallbackURL,
-                      successCallbackURL: agrRes.successCallbackURL,
-                      cancelledCallbackURL: agrRes.cancelledCallbackURL,
-                    ),
-                  ),
-                ) ??
-                BkashPaymentStatus.canceled;
-
-            if (bkashPaymentStatus == BkashPaymentStatus.successed) {
-              final result = await _bkashApi.executeCreateAgreement(
-                paymentId: agrRes.paymentID,
-                idToken: tokenRes.idToken,
-              );
-
-              return result.fold<BkashAgreementResponse>(
-                (l) => throw l,
-                (r) {
-                  // failed to execute
-                  if (r.statusCode != "0000") {
-                    throw BkashFailure();
-                  }
-                  return BkashAgreementResponse(
-                    r.agreementExecuteTime,
-                    payerReference: r.payerReference,
-                    paymentId: r.paymentID,
-                    customerMsisdn: r.customerMsisdn,
-                    agreementId: r.agreementID,
-                  );
-                },
-              );
-            }
-            if (bkashPaymentStatus == BkashPaymentStatus.canceled) {
-              throw BkashFailure(message: "Agreement creation Cancelled");
-            }
-            throw BkashFailure();
-          },
-        );
-      },
-    );
-
-    if (paymentResponse == null) {
-      throw BkashFailure();
+          return newToken.fold(
+            (l) => left(l),
+            (r) {
+              if (r.statusCode != "0000") {
+                return left(BkashFailure(message: r.statusMessage));
+              }
+              _tokenValidity = DateTime.now()
+                  .add(Duration(seconds: r.expiresIn))
+                  .subtract(const Duration(minutes: 5));
+              return right(r);
+            },
+          );
+        },
+      );
     }
-    return paymentResponse;
   }
 }
