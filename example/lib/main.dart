@@ -25,6 +25,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// paymentType: payWithAgreement, payWithoutAgreement, createAgreement
+/// enum values: as per your requirement
 enum PaymentType { payWithAgreement, payWithoutAgreement, createAgreement }
 
 class HomePage extends StatefulWidget {
@@ -175,23 +177,38 @@ class HomePageState extends State<HomePage> {
                             setState(() {
                               isLoading = true;
                             });
+
+                            /// create an instance of FlutterBkash
                             final flutterBkash = FlutterBkash();
 
+                            /// if the payment type is createAgreement
                             if (_paymentType == PaymentType.createAgreement) {
                               try {
                                 // remove focus from TextField to hide keyboard
                                 FocusManager.instance.primaryFocus?.unfocus();
+
+                                /// call createAgreement method to create an agreement as parameter pass the context
                                 final result = await flutterBkash
                                     .createAgreement(context: context);
+
+                                /// show the log
                                 dev.log(result.toString());
+
+                                /// show the snack-bar
                                 _showSnackbar(
                                     "(Success) AgreementId: ${result.agreementId}");
                               } on BkashFailure catch (e, st) {
+                                /// if any error occurred then show the log
                                 dev.log(e.message, error: e, stackTrace: st);
+
+                                /// show the snack-bar
                                 _showSnackbar(e.message);
                               } catch (e, st) {
+                                /// if any error occurred then show the log
                                 dev.log("Something went wrong",
                                     error: e, stackTrace: st);
+
+                                /// show the snack-bar
                                 _showSnackbar("Something went wrong");
                               }
                               setState(() {
@@ -199,6 +216,8 @@ class HomePageState extends State<HomePage> {
                               });
                               return;
                             }
+
+                            /// if the payment type is payWithoutAgreement
                             if (_paymentType ==
                                 PaymentType.payWithoutAgreement) {
                               final amount = _amountController.text.trim();
@@ -214,27 +233,39 @@ class HomePageState extends State<HomePage> {
                                 });
                                 return;
                               }
-                              // remove focus from TextField to hide keyboard
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              // Goto BkashPayment page & pass the params
 
+                              /// remove focus from TextField to hide keyboard
+                              FocusManager.instance.primaryFocus?.unfocus();
+
+                              /// Goto BkashPayment page & pass the params
                               try {
+                                /// call pay method to pay without agreement as parameter pass the context, amount, merchantInvoiceNumber
                                 final result = await flutterBkash.pay(
                                   context: context,
-                                  amount: double.parse(
-                                      amount), // need it double type
+                                  // need the context as BuildContext
+                                  amount: double.parse(amount),
+                                  // need it double type
                                   merchantInvoiceNumber: "tranId",
                                 );
 
+                                /// if the payment is success then show the log
                                 dev.log(result.toString());
+
+                                /// if the payment is success then show the snack-bar
                                 _showSnackbar(
                                     "(Success) tranId: ${result.trxId}");
                               } on BkashFailure catch (e, st) {
+                                /// if something went wrong then show the log
                                 dev.log(e.message, error: e, stackTrace: st);
+
+                                /// if something went wrong then show the snack-bar
                                 _showSnackbar(e.message);
                               } catch (e, st) {
+                                /// if something went wrong then show the log
                                 dev.log("Something went wrong",
                                     error: e, stackTrace: st);
+
+                                /// if something went wrong then show the snack-bar
                                 _showSnackbar("Something went wrong");
                               }
                               setState(() {
@@ -242,11 +273,15 @@ class HomePageState extends State<HomePage> {
                               });
                               return;
                             }
+
+                            /// if the payment type is payWithAgreement
                             if (_paymentType == PaymentType.payWithAgreement) {
+                              /// amount & agreementId is required
                               final amount = _amountController.text.trim();
                               final agreementId =
                                   _agreementIdController.text.trim();
 
+                              /// if the amount is empty then show the snack-bar
                               if (amount.isEmpty) {
                                 // if the amount is empty then show the snack-bar
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -259,6 +294,7 @@ class HomePageState extends State<HomePage> {
                                 return;
                               }
 
+                              /// is the agreementId is empty then show the snack-bar
                               if (agreementId.isEmpty) {
                                 // if the agreementId is empty then show the snack-bar
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -271,11 +307,12 @@ class HomePageState extends State<HomePage> {
                                 return;
                               }
 
-                              // remove focus from TextField to hide keyboard
+                              /// remove focus from TextField to hide keyboard
                               FocusManager.instance.primaryFocus?.unfocus();
 
                               // Goto BkashPayment page & pass the params
                               try {
+                                /// call payWithAgreement method to pay with agreement as parameter pass the context, amount, agreementId, marchentInvoiceNumber
                                 final result =
                                     await flutterBkash.payWithAgreement(
                                   context: context,
@@ -285,15 +322,22 @@ class HomePageState extends State<HomePage> {
                                       "merchantInvoiceNumber",
                                 );
 
+                                /// print the result
                                 dev.log(result.toString());
+
+                                /// show the snack-bar with success message
                                 _showSnackbar(
                                     "(Success) tranId: ${result.trxId}");
                               } on BkashFailure catch (e, st) {
+                                /// print the error message & stackTrace
                                 dev.log(e.message, error: e, stackTrace: st);
                                 _showSnackbar(e.message);
                               } catch (e, st) {
+                                /// print the error message & stackTrace
                                 dev.log("Something went wrong",
                                     error: e, stackTrace: st);
+
+                                /// show the snack-bar with error message
                                 _showSnackbar("Something went wrong");
                               }
                               setState(() {
@@ -312,6 +356,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  /// show snack-bar with message
   void _showSnackbar(String message) => ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
