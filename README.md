@@ -26,7 +26,7 @@ $ flutter pub add flutter_bkash
 This will add a line like this to your package's `pubspec.yaml` (and run an implicit **`flutter pub get`**):
 ```
 dependencies:
-    flutter_bkash: ^0.1.3
+    flutter_bkash: ^0.2.0
 ```
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more. Import it, Now in your Dart code, you can use:
 ```
@@ -137,10 +137,7 @@ try {
 
 Examples for see the `/example` folder.
 
-**Here is the example code**
-```
-Example Code implement here.
-```
+**Here is the example code** [link](https://github.com/codeboxrcodehub/flutter-bkash/blob/master/example/lib/main.dart)
 
 ### Importance Notes
 - Read the comments in the example of code
@@ -148,6 +145,9 @@ Example Code implement here.
 
 
 ## Contributing
+**Core Maintainer**
+- [Md Riadul Islam](https://github.com/rdnasim)
+- [ABDULLAH AL MASUM](https://github.com/dev-masum)
 
 Contributions to the **flutter_bkash** package are welcome. Please note the following guidelines before submitting your pull request.
 
@@ -158,4 +158,4 @@ Contributions to the **flutter_bkash** package are welcome. Please note the foll
 
 flutter_bkash package is licensed under the [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause).
 
-Copyright 2023
+Copyright 2023 [Codeboxr.com Team](https://codeboxr.com/team-codeboxr/). We are not affiliated with bKash and don't give any guarantee.
