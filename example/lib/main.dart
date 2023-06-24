@@ -310,7 +310,7 @@ class HomePageState extends State<HomePage> {
                               /// remove focus from TextField to hide keyboard
                               FocusManager.instance.primaryFocus?.unfocus();
 
-                              // Goto BkashPayment page & pass the params
+                              /// Goto BkashPayment page & pass the params
                               try {
                                 /// call payWithAgreement method to pay with agreement as parameter pass the context, amount, agreementId, marchentInvoiceNumber
                                 final result =

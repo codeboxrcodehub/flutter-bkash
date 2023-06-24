@@ -1,5 +1,4 @@
 ## 0.1.0
-
 * initial release.
 
 ## 0.1.1
@@ -16,7 +15,12 @@
 ## 0.1.3
 * Modified the README.md
 * Flutter formats the code [flutter format .]
-## 0.1.3
+
+## 0.2.0
 * Modified the README.md
 * Added Tokenized API feature
 * Changed API of flutter Bkash
+* Added some feature
+  * Pay using bKash without an agreement
+  * Create a bKash agreement for future payments
+  * Pay using bKash with an agreement
