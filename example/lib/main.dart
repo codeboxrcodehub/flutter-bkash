@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'dart:developer' as dev;
-import 'package:example/utils/style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bkash/flutter_bkash.dart';
 
@@ -28,7 +25,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-enum Intent { sale, authorization }
+/// paymentType: payWithAgreement, payWithoutAgreement, createAgreement
+/// enum values: as per your requirement
+enum PaymentType { payWithAgreement, payWithoutAgreement, createAgreement }
 
 class HomePage extends StatefulWidget {
   final String title;
@@ -42,188 +41,323 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _agreementIdController = TextEditingController();
 
-  Intent _intent = Intent.sale;
-  FocusNode? focusNode;
+  bool isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-
-    focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    // Clean up the focus node when the Form is disposed.
-    focusNode!.dispose();
-    super.dispose();
-  }
+  PaymentType _paymentType = PaymentType.payWithoutAgreement;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(title: Text(widget.title)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(80, 40, 80, 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Amount :',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Container(
-              margin: const EdgeInsets.only(top: 8),
-              child: TextFormField(
-                focusNode: focusNode,
-                controller: _amountController,
-                decoration: const InputDecoration(
-                  hintText: "1240",
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      borderSide: BorderSide(color: Colors.grey)),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.pink, width: 2.0),
+      body: Stack(
+        children: [
+          isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.pink,
                   ),
-                  // hintText: reviewTitle,
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(40),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_paymentType != PaymentType.createAgreement) ...[
+                        const Text(
+                          'Amount :',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextFormField(
+                          controller: _amountController,
+                          decoration: const InputDecoration(
+                            hintText: "1240",
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 0),
+                            border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5)),
+                                borderSide: BorderSide(color: Colors.grey)),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.pink, width: 2.0),
+                            ),
+                            // hintText: reviewTitle,
+                          ),
+                          keyboardType: TextInputType.number,
+                          maxLines: 1,
+                          minLines: 1,
+                        ),
+                        if (_paymentType == PaymentType.payWithAgreement) ...[
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const Text(
+                            'AgreementID :',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            controller: _agreementIdController,
+                            decoration: const InputDecoration(
+                              hintText: "User Agreement Id",
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 0),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)),
+                                  borderSide: BorderSide(color: Colors.grey)),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.pink, width: 2.0),
+                              ),
+                              // hintText: reviewTitle,
+                            ),
+                            keyboardType: TextInputType.text,
+                            maxLines: 1,
+                            minLines: 1,
+                          ),
+                        ],
+                        const SizedBox(height: 20.0),
+                      ],
+                      const Divider(),
+                      ListTile(
+                        title: const Text('Pay (without agreement)'),
+                        leading: Radio(
+                          value: PaymentType.payWithoutAgreement,
+                          groupValue: _paymentType,
+                          onChanged: (value) {
+                            setState(() => _paymentType = value!);
+                          },
+                        ),
+                        dense: true,
+                      ),
+                      ListTile(
+                        title: const Text('Pay with Agreement'),
+                        leading: Radio(
+                          value: PaymentType.payWithAgreement,
+                          groupValue: _paymentType,
+                          onChanged: (value) {
+                            setState(() => _paymentType = value!);
+                          },
+                        ),
+                        dense: true,
+                      ),
+                      ListTile(
+                        title: const Text('Create agreement'),
+                        leading: Radio(
+                          value: PaymentType.createAgreement,
+                          groupValue: _paymentType,
+                          onChanged: (value) {
+                            setState(() => _paymentType = value!);
+                          },
+                        ),
+                        dense: true,
+                      ),
+                      const Divider(),
+                      Center(
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3.0),
+                              ),
+                              backgroundColor: Colors.pink),
+                          child: const Text(
+                            "Checkout",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () async {
+                            setState(() {
+                              isLoading = true;
+                            });
+
+                            /// create an instance of FlutterBkash
+                            final flutterBkash = FlutterBkash();
+
+                            /// if the payment type is createAgreement
+                            if (_paymentType == PaymentType.createAgreement) {
+                              try {
+                                // remove focus from TextField to hide keyboard
+                                FocusManager.instance.primaryFocus?.unfocus();
+
+                                /// call createAgreement method to create an agreement as parameter pass the context
+                                final result = await flutterBkash
+                                    .createAgreement(context: context);
+
+                                /// show the log
+                                dev.log(result.toString());
+
+                                /// show the snack-bar
+                                _showSnackbar(
+                                    "(Success) AgreementId: ${result.agreementId}");
+                              } on BkashFailure catch (e, st) {
+                                /// if any error occurred then show the log
+                                dev.log(e.message, error: e, stackTrace: st);
+
+                                /// show the snack-bar
+                                _showSnackbar(e.message);
+                              } catch (e, st) {
+                                /// if any error occurred then show the log
+                                dev.log("Something went wrong",
+                                    error: e, stackTrace: st);
+
+                                /// show the snack-bar
+                                _showSnackbar("Something went wrong");
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
+
+                            /// if the payment type is payWithoutAgreement
+                            if (_paymentType ==
+                                PaymentType.payWithoutAgreement) {
+                              final amount = _amountController.text.trim();
+
+                              if (amount.isEmpty) {
+                                // if the amount is empty then show the snack-bar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Amount is empty. Without amount you can't pay. Try again")));
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                return;
+                              }
+
+                              /// remove focus from TextField to hide keyboard
+                              FocusManager.instance.primaryFocus?.unfocus();
+
+                              /// Goto BkashPayment page & pass the params
+                              try {
+                                /// call pay method to pay without agreement as parameter pass the context, amount, merchantInvoiceNumber
+                                final result = await flutterBkash.pay(
+                                  context: context,
+                                  // need the context as BuildContext
+                                  amount: double.parse(amount),
+                                  // need it double type
+                                  merchantInvoiceNumber: "tranId",
+                                );
+
+                                /// if the payment is success then show the log
+                                dev.log(result.toString());
+
+                                /// if the payment is success then show the snack-bar
+                                _showSnackbar(
+                                    "(Success) tranId: ${result.trxId}");
+                              } on BkashFailure catch (e, st) {
+                                /// if something went wrong then show the log
+                                dev.log(e.message, error: e, stackTrace: st);
+
+                                /// if something went wrong then show the snack-bar
+                                _showSnackbar(e.message);
+                              } catch (e, st) {
+                                /// if something went wrong then show the log
+                                dev.log("Something went wrong",
+                                    error: e, stackTrace: st);
+
+                                /// if something went wrong then show the snack-bar
+                                _showSnackbar("Something went wrong");
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
+
+                            /// if the payment type is payWithAgreement
+                            if (_paymentType == PaymentType.payWithAgreement) {
+                              /// amount & agreementId is required
+                              final amount = _amountController.text.trim();
+                              final agreementId =
+                                  _agreementIdController.text.trim();
+
+                              /// if the amount is empty then show the snack-bar
+                              if (amount.isEmpty) {
+                                // if the amount is empty then show the snack-bar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "Amount is empty. Without amount you can't pay. Try again")));
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                return;
+                              }
+
+                              /// is the agreementId is empty then show the snack-bar
+                              if (agreementId.isEmpty) {
+                                // if the agreementId is empty then show the snack-bar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            "AgreementId is empty. Without AgreementId you can't pay. Try again")));
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                return;
+                              }
+
+                              /// remove focus from TextField to hide keyboard
+                              FocusManager.instance.primaryFocus?.unfocus();
+
+                              // Goto BkashPayment page & pass the params
+                              try {
+                                /// call payWithAgreement method to pay with agreement as parameter pass the context, amount, agreementId, marchentInvoiceNumber
+                                final result =
+                                    await flutterBkash.payWithAgreement(
+                                  context: context,
+                                  amount: double.parse(amount),
+                                  agreementId: agreementId,
+                                  marchentInvoiceNumber:
+                                      "merchantInvoiceNumber",
+                                );
+
+                                /// print the result
+                                dev.log(result.toString());
+
+                                /// show the snack-bar with success message
+                                _showSnackbar(
+                                    "(Success) tranId: ${result.trxId}");
+                              } on BkashFailure catch (e, st) {
+                                /// print the error message & stackTrace
+                                dev.log(e.message, error: e, stackTrace: st);
+                                _showSnackbar(e.message);
+                              } catch (e, st) {
+                                /// print the error message & stackTrace
+                                dev.log("Something went wrong",
+                                    error: e, stackTrace: st);
+
+                                /// show the snack-bar with error message
+                                _showSnackbar("Something went wrong");
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
+                          },
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                keyboardType: TextInputType.number,
-                maxLines: 1,
-                minLines: 1,
-              ),
-            ),
-            const SizedBox(height: 40.0),
-            const Divider(),
-            ListTile(
-              title: const Text('Immediate'),
-              leading: Radio(
-                value: Intent.sale,
-                groupValue: _intent,
-                onChanged: (value) {
-                  setState(() => _intent = value!);
-                },
-              ),
-              dense: true,
-            ),
-            ListTile(
-              title: const Text('Auth and Capture'),
-              leading: Radio(
-                value: Intent.authorization,
-                groupValue: _intent,
-                onChanged: (value) {
-                  setState(() => _intent = value!);
-                },
-              ),
-              dense: true,
-            ),
-            const Divider(),
-            Center(
-              child: TextButton(
-                style: TextButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(3.0),
-                    ),
-                    backgroundColor: Colors.pink),
-                child: const Text(
-                  "Checkout",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  String amount = _amountController.text.trim();
-                  String intent =
-                      _intent == Intent.sale ? "sale" : "authorization";
-
-                  if (amount.isEmpty) {
-                    // if the amount is empty then show the snack-bar
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text(
-                            "Amount is empty. Without amount you can't pay. Try again")));
-                    return;
-                  }
-                  // remove focus from TextField to hide keyboard
-                  focusNode!.unfocus();
-                  // Goto BkashPayment page & pass the params
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => BkashPayment(
-                            /// depend isSandbox (true/false)
-                            isSandbox: true,
-
-                            /// amount of your bkash payment
-                            amount: amount,
-
-                            /// intent would be (sale / authorization)
-                            intent: intent,
-                            // accessToken: '', /// if the user have own access token for verify payment
-                            // currency: 'BDT',
-                            /// bkash url for create payment, when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
-                            createBKashUrl:
-                                'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/create',
-
-                            /// bkash url for execute payment, , when you implement on you project then it be change as your production create url, [when you send it on sandbox mode, send it as empty string '' or anything]
-                            executeBKashUrl:
-                                'https://merchantserver.sandbox.bka.sh/api/checkout/v1.2.0-beta/payment/execute',
-
-                            /// for script url, when you implement on production the set it live script js (https://scripts.pay.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-pay.js)
-                            scriptUrl:
-                                'https://scripts.sandbox.bka.sh/versions/1.2.0-beta/checkout/bKash-checkout-sandbox.js',
-
-                            /// the return value from the package
-                            /// status => 'paymentSuccess', 'paymentFailed', 'paymentError', 'paymentClose'
-                            /// data => return value of response
-                            paymentStatus: (status, data) {
-                              dev.log('return status => $status');
-                              dev.log('return data => $data');
-
-                              /// when payment success
-                              if (status == 'paymentSuccess') {
-                                if (data['transactionStatus'] == 'Completed') {
-                                  Style.basicToast('Payment Success');
-                                }
-                              }
-
-                              /// when payment failed
-                              else if (status == 'paymentFailed') {
-                                if (data.isEmpty) {
-                                  Style.errorToast('Payment Failed');
-                                } else if (data[0]['errorMessage'].toString() !=
-                                    'null') {
-                                  Style.errorToast(
-                                      "Payment Failed ${data[0]['errorMessage']}");
-                                } else {
-                                  Style.errorToast("Payment Failed");
-                                }
-                              }
-
-                              // when payment on error
-                              else if (status == 'paymentError') {
-                                Style.errorToast(
-                                    jsonDecode(data['responseText'])['error']);
-                              }
-
-                              // when payment close on demand closed the windows
-                              else if (status == 'paymentClose') {
-                                if (data == 'closedWindow') {
-                                  Style.errorToast(
-                                      'Failed to payment, closed screen');
-                                } else if (data == 'scriptLoadedFailed') {
-                                  Style.errorToast(
-                                      'Payment screen loading failed');
-                                }
-                              }
-                              // back to screen to pop()
-                              Navigator.of(context).pop();
-                            },
-                          )));
-                },
-              ),
-            )
-          ],
-        ),
+        ],
       ),
     );
   }
+
+  /// show snack-bar with message
+  void _showSnackbar(String message) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
 }
