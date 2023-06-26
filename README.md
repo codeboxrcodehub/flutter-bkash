@@ -5,8 +5,8 @@
 
  <h1 align="center">bKash(BD) Mobile Finance Payment Gateway Flutter Package</h1>
 <p align="center" >
-
 </p>
+
 
 [![Pub](https://img.shields.io/pub/v/flutter_bkash.svg)](https://pub.dartlang.org/packages/flutter_bkash)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
@@ -138,6 +138,13 @@ try {
 Examples for see the `/example` folder.
 
 **Here is the example code** [link](https://github.com/codeboxrcodehub/flutter-bkash/blob/master/example/lib/main.dart)
+
+**Example Video Demo**
+
+<div align="center">
+  <video src="https://github.com/codeboxrcodehub/flutter-bkash/assets/19654129/5f9e12ee-b5cb-4dc2-a522-0c631f1f7032" controls></video>
+</div>
+
 
 ### Importance Notes
 - Read the comments in the example of code
