@@ -17,7 +17,10 @@ mixin ApiHelper {
 
       switch (response.statusCode) {
         case 200:
-          log(response.body, name: "Flutter Bkash");
+          if (logResponse) {
+            log(response.body, name: "Flutter Bkash");
+          }
+
           return right(json.decode(response.body) as Map<String, dynamic>);
         case 400:
           return left(BkashFailure(message: "Bad Request"));
