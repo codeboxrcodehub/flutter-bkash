@@ -179,7 +179,8 @@ class HomePageState extends State<HomePage> {
                             });
 
                             /// create an instance of FlutterBkash
-                            final flutterBkash = FlutterBkash();
+                            final flutterBkash =
+                                FlutterBkash(logResponse: true);
 
                             /// if the payment type is createAgreement
                             if (_paymentType == PaymentType.createAgreement) {
