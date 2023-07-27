@@ -10,10 +10,14 @@ import 'models/token_response_model.dart';
 
 class TokenApi with ApiHelper {
   final BkashCredentials _bkashCredentials;
+  final bool logResponse;
 
   late String _baseUrl;
 
-  TokenApi(this._bkashCredentials) {
+  TokenApi(
+    this._bkashCredentials, {
+    required this.logResponse,
+  }) {
     _baseUrl =
         "https://tokenized.${_bkashCredentials.isSandbox ? "sandbox" : "pay"}.bka.sh/v1.2.0-beta";
   }
@@ -31,6 +35,7 @@ class TokenApi with ApiHelper {
     };
 
     final data = await networkCallHelper(
+      logResponse: logResponse,
       function: () => http.post(
         Uri.parse("$_baseUrl/tokenized/checkout/token/grant"),
         headers: headers,
@@ -60,6 +65,7 @@ class TokenApi with ApiHelper {
     };
 
     final data = await networkCallHelper(
+      logResponse: logResponse,
       function: () => http.post(
         Uri.parse("$_baseUrl/tokenized/checkout/token/refresh"),
         headers: headers,

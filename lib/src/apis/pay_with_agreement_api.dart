@@ -11,10 +11,14 @@ import 'models/pay_with_agreement/pay_with_agreement_response_model.dart';
 
 class PayWithAgreementApi with ApiHelper {
   final BkashCredentials _bkashCredentials;
+  final bool logResponse;
 
   late String _baseUrl;
 
-  PayWithAgreementApi(this._bkashCredentials) {
+  PayWithAgreementApi(
+    this._bkashCredentials, {
+    required this.logResponse,
+  }) {
     _baseUrl =
         "https://tokenized.${_bkashCredentials.isSandbox ? "sandbox" : "pay"}.bka.sh/v1.2.0-beta";
   }
@@ -42,6 +46,7 @@ class PayWithAgreementApi with ApiHelper {
     };
 
     final data = await networkCallHelper(
+      logResponse: logResponse,
       function: () => http.post(
         Uri.parse("$_baseUrl/tokenized/checkout/create"),
         headers: headers,
@@ -70,6 +75,7 @@ class PayWithAgreementApi with ApiHelper {
       "paymentID": paymentId,
     };
     final data = await networkCallHelper(
+        logResponse: logResponse,
         function: () => http.post(
               Uri.parse("$_baseUrl/tokenized/checkout/execute"),
               headers: headers,
