@@ -42,10 +42,10 @@ class FlutterBkashViewState extends State<FlutterBkashView> {
           onWebResourceError: (WebResourceError error) =>
               Navigator.of(context).pop(BkashPaymentStatus.failed),
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith("https://www.bkash.com/")) {
+            if (request.url.contains("bkash.com")) {
+              //sendbox starts with sandbox.payment.bkash.com and live starts with payment.bkash.com
               return NavigationDecision.navigate;
             }
-
             if (request.url.startsWith(widget.successCallbackURL)) {
               Navigator.of(context).pop(BkashPaymentStatus.successed);
             } else if (request.url.startsWith(widget.failureCallbackURL)) {
