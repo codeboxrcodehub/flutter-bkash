@@ -10,6 +10,9 @@ import 'bkash_payment_status.dart';
 import 'utils/failure.dart';
 
 class FlutterBkash {
+  /// For printing Bkash responses
+  final bool logResponse;
+
   // All Bkash apis
   final BkashApi _bkashApi;
 
@@ -21,6 +24,7 @@ class FlutterBkash {
 
   FlutterBkash({
     BkashCredentials? bkashCredentials,
+    this.logResponse = false,
   }) : _bkashApi = BkashApi(
           bkashCredentials: bkashCredentials ??
               const BkashCredentials(
@@ -31,6 +35,7 @@ class FlutterBkash {
                     "2is7hdktrekvrbljjh44ll3d9l1dtjo4pasmjvs5vl5qr3fug4b",
                 isSandbox: true,
               ),
+          logResponse: logResponse,
         );
 
   /// Call this function for Create-Payment (Mentioned in Bkash Doc)
@@ -53,7 +58,7 @@ class FlutterBkash {
           idToken: tokenRes.idToken,
           amount: amount.toString(),
           payerReference: payerReference,
-          marchentInvoiceNumber: merchantInvoiceNumber,
+          merchantInvoiceNumber: merchantInvoiceNumber,
         );
 
         return await apiResponse.fold<Future<BkashPaymentResponse>>(
@@ -210,7 +215,7 @@ class FlutterBkash {
           idToken: tokenRes.idToken,
           agreementId: agreementId,
           amount: amount.toString(),
-          marchentInvoiceNumber: marchentInvoiceNumber,
+          merchantInvoiceNumber: marchentInvoiceNumber,
         );
 
         return await apiResponse.fold<Future<BkashPaymentResponse>>(
