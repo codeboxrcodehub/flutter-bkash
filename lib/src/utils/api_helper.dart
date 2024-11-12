@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:fpdart/fpdart.dart';
@@ -8,6 +9,7 @@ import 'failure.dart';
 
 mixin ApiHelper {
   Future<Either<BkashFailure, Map<String, dynamic>>> networkCallHelper({
+    required bool logResponse,
     required Future<Response> Function() function,
   }) async {
     try {
@@ -15,6 +17,10 @@ mixin ApiHelper {
 
       switch (response.statusCode) {
         case 200:
+          if (logResponse) {
+            log(response.body, name: "Flutter Bkash");
+          }
+
           return right(json.decode(response.body) as Map<String, dynamic>);
         case 400:
           return left(BkashFailure(message: "Bad Request"));
