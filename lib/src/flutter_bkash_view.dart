@@ -11,12 +11,12 @@ class FlutterBkashView extends StatefulWidget {
   final String cancelledCallbackURL;
 
   const FlutterBkashView({
-    Key? key,
+    super.key,
     required this.bkashURL,
     required this.successCallbackURL,
     required this.failureCallbackURL,
     required this.cancelledCallbackURL,
-  }) : super(key: key);
+  });
 
   @override
   FlutterBkashViewState createState() => FlutterBkashViewState();
@@ -39,8 +39,7 @@ class FlutterBkashViewState extends State<FlutterBkashView> {
           // },
           // onPageStarted: (String url) {},
           // onPageFinished: (String url) {},
-          onWebResourceError: (WebResourceError error) =>
-              Navigator.of(context).pop(BkashPaymentStatus.failed),
+          onWebResourceError: (WebResourceError error) => Navigator.of(context).pop(BkashPaymentStatus.failed),
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.contains("bkash.com")) {
               //sendbox starts with sandbox.payment.bkash.com and live starts with payment.bkash.com
@@ -70,13 +69,18 @@ class FlutterBkashViewState extends State<FlutterBkashView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (await _webViewController.canGoBack()) {
-          await _webViewController.goBack();
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (!didPop) {
+          if (await _webViewController.canGoBack()) {
+            await _webViewController.goBack();
+          } else {
+            if (context.mounted) {
+              Navigator.of(context).pop(BkashPaymentStatus.canceled);
+            }
+          }
         }
-
-        return false;
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -87,8 +91,7 @@ class FlutterBkashViewState extends State<FlutterBkashView> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               color: Colors.white,
-              onPressed: () =>
-                  Navigator.of(context).pop(BkashPaymentStatus.canceled),
+              onPressed: () => Navigator.of(context).pop(BkashPaymentStatus.canceled),
             ),
             title: const Text('bKash Checkout')),
         body: WebViewWidget(controller: _webViewController),
