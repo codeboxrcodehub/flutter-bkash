@@ -28,3 +28,4 @@
 ## 0.3.0
 * Modified as per new version of bKash API
 * Added minor code changes
+* Added tokenized api changes
