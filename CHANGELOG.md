@@ -24,3 +24,7 @@
   * Pay using bKash without an agreement
   * Create a bKash agreement for future payments
   * Pay using bKash with an agreement
+
+## 0.3.0
+* Modified as per new version of bKash API
+* Added minor code changes
