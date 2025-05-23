@@ -77,15 +77,11 @@ class HomePageState extends State<HomePage> {
                           controller: _amountController,
                           decoration: const InputDecoration(
                             hintText: "1240",
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 0),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)),
-                                borderSide: BorderSide(color: Colors.grey)),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                            border:
+                                OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)), borderSide: BorderSide(color: Colors.grey)),
                             focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.pink, width: 2.0),
+                              borderSide: BorderSide(color: Colors.pink, width: 2.0),
                             ),
                             // hintText: reviewTitle,
                           ),
@@ -108,15 +104,11 @@ class HomePageState extends State<HomePage> {
                             controller: _agreementIdController,
                             decoration: const InputDecoration(
                               hintText: "User Agreement Id",
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 0),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)),
-                                  borderSide: BorderSide(color: Colors.grey)),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                              border:
+                                  OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)), borderSide: BorderSide(color: Colors.grey)),
                               focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.pink, width: 2.0),
+                                borderSide: BorderSide(color: Colors.pink, width: 2.0),
                               ),
                               // hintText: reviewTitle,
                             ),
@@ -179,8 +171,16 @@ class HomePageState extends State<HomePage> {
                             });
 
                             /// create an instance of FlutterBkash
-                            final flutterBkash =
-                                FlutterBkash(logResponse: true);
+                            final flutterBkash = FlutterBkash(
+                              bkashCredentials: const BkashCredentials(
+                                username: "01783680336",
+                                password: "nR8{^3j1Z@B",
+                                appKey: "zuM020mk8M5BfXesMweZtiQMtc",
+                                appSecret: "9afwkpN0tTJxIItoYwlJMlDbq8U2NMOHCFVKLTLIxtGKuNAVipzm",
+                                isSandbox: false,
+                              ),
+                              logResponse: true,
+                            );
 
                             /// if the payment type is createAgreement
                             if (_paymentType == PaymentType.createAgreement) {
@@ -189,15 +189,13 @@ class HomePageState extends State<HomePage> {
                                 FocusManager.instance.primaryFocus?.unfocus();
 
                                 /// call createAgreement method to create an agreement as parameter pass the context
-                                final result = await flutterBkash
-                                    .createAgreement(context: context);
+                                final result = await flutterBkash.createAgreement(context: context);
 
                                 /// show the log
                                 dev.log(result.toString());
 
                                 /// show the snack-bar
-                                _showSnackbar(
-                                    "(Success) AgreementId: ${result.agreementId}");
+                                _showSnackbar("(Success) AgreementId: ${result.agreementId}");
                               } on BkashFailure catch (e, st) {
                                 /// if any error occurred then show the log
                                 dev.log(e.message, error: e, stackTrace: st);
@@ -206,8 +204,7 @@ class HomePageState extends State<HomePage> {
                                 _showSnackbar(e.message);
                               } catch (e, st) {
                                 /// if any error occurred then show the log
-                                dev.log("Something went wrong",
-                                    error: e, stackTrace: st);
+                                dev.log("Something went wrong", error: e, stackTrace: st);
 
                                 /// show the snack-bar
                                 _showSnackbar("Something went wrong");
@@ -219,16 +216,13 @@ class HomePageState extends State<HomePage> {
                             }
 
                             /// if the payment type is payWithoutAgreement
-                            if (_paymentType ==
-                                PaymentType.payWithoutAgreement) {
+                            if (_paymentType == PaymentType.payWithoutAgreement) {
                               final amount = _amountController.text.trim();
 
                               if (amount.isEmpty) {
                                 // if the amount is empty then show the snack-bar
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "Amount is empty. Without amount you can't pay. Try again")));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(content: Text("Amount is empty. Without amount you can't pay. Try again")));
                                 setState(() {
                                   isLoading = false;
                                 });
@@ -253,8 +247,7 @@ class HomePageState extends State<HomePage> {
                                 dev.log(result.toString());
 
                                 /// if the payment is success then show the snack-bar
-                                _showSnackbar(
-                                    "(Success) tranId: ${result.trxId}");
+                                _showSnackbar("(Success) tranId: ${result.trxId}");
                               } on BkashFailure catch (e, st) {
                                 /// if something went wrong then show the log
                                 dev.log(e.message, error: e, stackTrace: st);
@@ -263,8 +256,7 @@ class HomePageState extends State<HomePage> {
                                 _showSnackbar(e.message);
                               } catch (e, st) {
                                 /// if something went wrong then show the log
-                                dev.log("Something went wrong",
-                                    error: e, stackTrace: st);
+                                dev.log("Something went wrong", error: e, stackTrace: st);
 
                                 /// if something went wrong then show the snack-bar
                                 _showSnackbar("Something went wrong");
@@ -279,16 +271,13 @@ class HomePageState extends State<HomePage> {
                             if (_paymentType == PaymentType.payWithAgreement) {
                               /// amount & agreementId is required
                               final amount = _amountController.text.trim();
-                              final agreementId =
-                                  _agreementIdController.text.trim();
+                              final agreementId = _agreementIdController.text.trim();
 
                               /// if the amount is empty then show the snack-bar
                               if (amount.isEmpty) {
                                 // if the amount is empty then show the snack-bar
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "Amount is empty. Without amount you can't pay. Try again")));
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(const SnackBar(content: Text("Amount is empty. Without amount you can't pay. Try again")));
                                 setState(() {
                                   isLoading = false;
                                 });
@@ -299,9 +288,7 @@ class HomePageState extends State<HomePage> {
                               if (agreementId.isEmpty) {
                                 // if the agreementId is empty then show the snack-bar
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text(
-                                            "AgreementId is empty. Without AgreementId you can't pay. Try again")));
+                                    const SnackBar(content: Text("AgreementId is empty. Without AgreementId you can't pay. Try again")));
                                 setState(() {
                                   isLoading = false;
                                 });
@@ -314,29 +301,25 @@ class HomePageState extends State<HomePage> {
                               /// Goto BkashPayment page & pass the params
                               try {
                                 /// call payWithAgreement method to pay with agreement as parameter pass the context, amount, agreementId, marchentInvoiceNumber
-                                final result =
-                                    await flutterBkash.payWithAgreement(
+                                final result = await flutterBkash.payWithAgreement(
                                   context: context,
                                   amount: double.parse(amount),
                                   agreementId: agreementId,
-                                  marchentInvoiceNumber:
-                                      "merchantInvoiceNumber",
+                                  marchentInvoiceNumber: "merchantInvoiceNumber",
                                 );
 
                                 /// print the result
                                 dev.log(result.toString());
 
                                 /// show the snack-bar with success message
-                                _showSnackbar(
-                                    "(Success) tranId: ${result.trxId}");
+                                _showSnackbar("(Success) tranId: ${result.trxId}");
                               } on BkashFailure catch (e, st) {
                                 /// print the error message & stackTrace
                                 dev.log(e.message, error: e, stackTrace: st);
                                 _showSnackbar(e.message);
                               } catch (e, st) {
                                 /// print the error message & stackTrace
-                                dev.log("Something went wrong",
-                                    error: e, stackTrace: st);
+                                dev.log("Something went wrong", error: e, stackTrace: st);
 
                                 /// show the snack-bar with error message
                                 _showSnackbar("Something went wrong");
