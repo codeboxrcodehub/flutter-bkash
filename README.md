@@ -191,7 +191,7 @@ Examples for see the `/example` folder. The demo app also saves every payment/ag
 **Example Demo**
 
 <div align="center">
-  <img src="assets/scrcpy_XPL1oS5xdi.gif" alt="flutter_bkash example demo">
+  <img src="https://github.com/codeboxrcodehub/flutter-bkash/blob/master/assets/scrcpy_XPL1oS5xdi.gif" alt="flutter_bkash example demo">
 </div>
 
 
