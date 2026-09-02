@@ -40,3 +40,7 @@
 * Fixed example app failing to build against current Flutter/Gradle/JDK (Gradle 8.14, AGP 8.11.1, Kotlin 2.2.20, upgraded `webview_flutter_android`)
 * Redesigned example app: Material 3 UI, on-device History (payments/agreements/refunds persist locally with copy-to-clipboard and chained follow-up actions), and a Sandbox Info page with bKash's test wallet numbers/OTP/PIN
 * Declaring 1.0.0: the public API (`FlutterBkash`, `BkashCredentials`, `BkashFailure`, `BkashApi`) is considered stable going forward
+
+## 1.0.1
+* Replaced the README's demo video with a gif (`assets/scrcpy_XPL1oS5xdi.gif`) — videos don't render on pub.dev
+* Fixed the README header favicon and demo gif to use GitHub raw URLs (`?raw=true`) so both render on pub.dev, not just GitHub

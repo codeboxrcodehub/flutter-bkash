@@ -26,7 +26,7 @@ $ flutter pub add flutter_bkash
 This will add a line like this to your package's `pubspec.yaml` (and run an implicit **`flutter pub get`**):
 ```
 dependencies:
-    flutter_bkash: ^1.0.0
+    flutter_bkash: ^1.0.1
 ```
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more. Import it, Now in your Dart code, you can use:
 ```
@@ -191,7 +191,7 @@ Examples for see the `/example` folder. The demo app also saves every payment/ag
 **Example Demo**
 
 <div align="center">
-  <img src="https://github.com/codeboxrcodehub/flutter-bkash/blob/master/assets/scrcpy_XPL1oS5xdi.gif" alt="flutter_bkash example demo">
+  <img src="https://github.com/codeboxrcodehub/flutter-bkash/blob/master/assets/scrcpy_XPL1oS5xdi.gif?raw=true" alt="flutter_bkash example demo">
 </div>
 
 
