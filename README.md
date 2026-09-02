@@ -1,6 +1,6 @@
 
 <p align="center" >
-  <img src="assets/bkash_favicon.png">
+  <img src="https://github.com/codeboxrcodehub/flutter-bkash/blob/master/assets/bkash_favicon.png?raw=true">
 </p>
 
  <h1 align="center">bKash(BD) Mobile Finance Payment Gateway Flutter Package</h1>
@@ -188,10 +188,10 @@ Examples for see the `/example` folder. The demo app also saves every payment/ag
 
 **Here is the example code** [link](https://github.com/codeboxrcodehub/flutter-bkash/blob/master/example/lib/main.dart)
 
-**Example Video Demo**
+**Example Demo**
 
 <div align="center">
-  <video src="https://github.com/codeboxrcodehub/flutter-bkash/assets/19654129/5f9e12ee-b5cb-4dc2-a522-0c631f1f7032" controls></video>
+  <img src="assets/scrcpy_XPL1oS5xdi.gif" alt="flutter_bkash example demo">
 </div>
 
 
