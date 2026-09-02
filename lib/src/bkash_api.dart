@@ -1,6 +1,7 @@
 import 'package:flutter_bkash/src/apis/create_agreement_api.dart';
 import 'package:flutter_bkash/src/apis/pay_with_agreement_api.dart';
 import 'package:flutter_bkash/src/apis/pay_without_agreement_api.dart';
+import 'package:flutter_bkash/src/apis/refund_api.dart';
 import 'package:flutter_bkash/src/apis/token_api.dart';
 import 'package:flutter_bkash/src/bkash_credentials.dart';
 import 'package:fpdart/fpdart.dart';
@@ -11,6 +12,8 @@ import 'apis/models/pay_with_agreement/pay_with_agreement_execute_response_model
 import 'apis/models/pay_with_agreement/pay_with_agreement_response_model.dart';
 import 'apis/models/pay_without_agreement/pay_without_agreement_execute_response_model.dart';
 import 'apis/models/pay_without_agreement/pay_without_agreement_response.dart';
+import 'apis/models/refund/refund_status_response_model.dart';
+import 'apis/models/refund/refund_transaction_response_model.dart';
 import 'apis/models/token_response_model.dart';
 import 'utils/failure.dart';
 
@@ -34,6 +37,9 @@ class BkashApi {
   /// The API for paying without an existing agreement.
   final PayWithoutAgreementApi _payWithoutAgreementApi;
 
+  /// The API for refunding a completed payment and querying refund status.
+  final RefundApi _refundApi;
+
   /// Creates a new instance of the [BkashApi] with the provided [bkashCredentials].
   ///
   /// The [bkashCredentials] contains the necessary authentication information to access the bKash APIs.
@@ -53,6 +59,10 @@ class BkashApi {
           logResponse: logResponse,
         ),
         _payWithoutAgreementApi = PayWithoutAgreementApi(
+          bkashCredentials,
+          logResponse: logResponse,
+        ),
+        _refundApi = RefundApi(
           bkashCredentials,
           logResponse: logResponse,
         );
@@ -169,5 +179,44 @@ class BkashApi {
           await _payWithoutAgreementApi.executePayWithoutAgreement(
             paymentId: paymentId,
             idToken: idToken,
+          );
+
+  // refund api
+
+  /// Refunds a completed payment, fully or partially, using the provided [paymentId] and [trxId].
+  ///
+  /// Returns a [RefundTransactionResponseModel] if the refund request is accepted,
+  /// or a [BkashFailure] indicating the reason for failure.
+  Future<Either<BkashFailure, RefundTransactionResponseModel>>
+      refundTransaction({
+    required String idToken,
+    required String paymentId,
+    required String trxId,
+    required String refundAmount,
+    required String sku,
+    required String reason,
+  }) async =>
+          await _refundApi.refundTransaction(
+            idToken: idToken,
+            paymentId: paymentId,
+            trxId: trxId,
+            refundAmount: refundAmount,
+            sku: sku,
+            reason: reason,
+          );
+
+  /// Queries the status of refund(s) issued against the provided [paymentId] and [trxId].
+  ///
+  /// Returns a [RefundStatusResponseModel] if the query is successful,
+  /// or a [BkashFailure] indicating the reason for failure.
+  Future<Either<BkashFailure, RefundStatusResponseModel>> refundStatus({
+    required String idToken,
+    required String paymentId,
+    required String trxId,
+  }) async =>
+          await _refundApi.refundStatus(
+            idToken: idToken,
+            paymentId: paymentId,
+            trxId: trxId,
           );
 }

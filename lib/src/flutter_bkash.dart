@@ -7,6 +7,7 @@ import 'package:fpdart/fpdart.dart';
 
 import 'bkash_payment_response.dart';
 import 'bkash_payment_status.dart';
+import 'bkash_refund_response.dart';
 import 'utils/failure.dart';
 
 class FlutterBkash {
@@ -275,6 +276,113 @@ class FlutterBkash {
       throw BkashFailure();
     }
     return paymentResponse;
+  }
+
+  /// Refunds a completed payment, fully or partially.
+  ///
+  /// [paymentId] is the paymentID returned by the original Create-Payment call,
+  /// and [trxId] is the trxID returned by the corresponding Execute-Payment call.
+  ///
+  /// [sku] and [reason] are documented by bKash as optional, but the API
+  /// rejects the request with a Bad Request error when either is missing —
+  /// required here to match actual behavior.
+  ///
+  /// Throws [BkashFailure] for error with a user-friendly message.
+  Future<BkashRefundResponse> refund({
+    required String paymentId,
+    required String trxId,
+    required double refundAmount,
+    required String sku,
+    required String reason,
+  }) async {
+    await _validateToken();
+
+    final refundResponse = await _token?.fold<Future<BkashRefundResponse>>(
+      (l) async => throw l,
+      (tokenRes) async {
+        final apiResponse = await _bkashApi.refundTransaction(
+          idToken: tokenRes.idToken,
+          paymentId: paymentId,
+          trxId: trxId,
+          refundAmount: refundAmount.toString(),
+          sku: sku,
+          reason: reason,
+        );
+
+        return apiResponse.fold<BkashRefundResponse>(
+          (l) => throw l,
+          (r) {
+            // any status other than "Completed" is a failed refund
+            if (r.refundTransactionStatus != "Completed") {
+              throw BkashFailure(message: "Refund Failed");
+            }
+            return BkashRefundResponse(
+              r.completedTime,
+              originalTrxId: r.originalTrxId,
+              refundTrxId: r.refundTrxId,
+              refundTransactionStatus: r.refundTransactionStatus,
+              originalTrxAmount: r.originalTrxAmount,
+              refundAmount: r.refundAmount,
+              currency: r.currency,
+              sku: r.sku,
+              reason: r.reason,
+            );
+          },
+        );
+      },
+    );
+
+    if (refundResponse == null) {
+      throw BkashFailure();
+    }
+    return refundResponse;
+  }
+
+  /// Queries the status of refund(s) issued against a payment.
+  ///
+  /// [paymentId] is the paymentID returned by the original Create-Payment call,
+  /// and [trxId] is the trxID returned by the corresponding Execute-Payment call.
+  ///
+  /// Throws [BkashFailure] for error with a user-friendly message.
+  Future<BkashRefundStatusResponse> refundStatus({
+    required String paymentId,
+    required String trxId,
+  }) async {
+    await _validateToken();
+
+    final statusResponse =
+        await _token?.fold<Future<BkashRefundStatusResponse>>(
+      (l) async => throw l,
+      (tokenRes) async {
+        final apiResponse = await _bkashApi.refundStatus(
+          idToken: tokenRes.idToken,
+          paymentId: paymentId,
+          trxId: trxId,
+        );
+
+        return apiResponse.fold<BkashRefundStatusResponse>(
+          (l) => throw l,
+          (r) => BkashRefundStatusResponse(
+            originalTrxId: r.originalTrxId,
+            originalTrxAmount: r.originalTrxAmount,
+            originalTrxCompletedTime: r.originalTrxCompletedTime,
+            refundTransactions: r.refundTransactions
+                .map((e) => BkashRefundStatusItem(
+                      e.completedTime,
+                      refundTrxId: e.refundTrxId,
+                      refundTransactionStatus: e.refundTransactionStatus,
+                      refundAmount: e.refundAmount,
+                    ))
+                .toList(),
+          ),
+        );
+      },
+    );
+
+    if (statusResponse == null) {
+      throw BkashFailure();
+    }
+    return statusResponse;
   }
 
   Future<void> _validateToken() async {

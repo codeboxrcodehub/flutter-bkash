@@ -1,6 +1,6 @@
 
 <p align="center" >
-  <img src="https://www.bkash.com/images/favicon.png">
+  <img src="assets/bkash_favicon.png">
 </p>
 
  <h1 align="center">bKash(BD) Mobile Finance Payment Gateway Flutter Package</h1>
@@ -26,7 +26,7 @@ $ flutter pub add flutter_bkash
 This will add a line like this to your package's `pubspec.yaml` (and run an implicit **`flutter pub get`**):
 ```
 dependencies:
-    flutter_bkash: ^0.3.1
+    flutter_bkash: ^1.0.0
 ```
 Alternatively, your editor might support flutter pub get. Check the docs for your editor to learn more. Import it, Now in your Dart code, you can use:
 ```
@@ -36,6 +36,8 @@ import 'package:flutter_bkash/flutter_bkash.dart';
 - Pay using bKash without an agreement
 - Create a bKash agreement for future payments
 - Pay using bKash with an agreement
+- Refund a completed payment, fully or partially
+- Query the status of a refund
 
 ## Usage
 Official Link for API documentation and demo checkout
@@ -124,6 +126,52 @@ BkashPaymentResponse(
 	_executeTime: 2023-06-18T10:22:31:623 GMT+0600
 )
 ```
+### Refund a Payment
+To refund a completed payment (full or partial), use the `refund` method. `paymentId` and `trxId` come from the `pay`/`payWithAgreement` response you're refunding. `sku` and `reason` are documented by bKash as optional, but the API rejects the request without them — pass both:
+
+***Request***
+```
+final result = await flutterBkash.refund(
+  paymentId: "TR0011fd4uZMS1687062024354",
+  trxId: "AFI60BAC94",
+  refundAmount: 50.0, // amount as double
+  sku: "order-1234",
+  reason: "customer requested refund",
+);
+```
+***Response***
+```
+BkashRefundResponse(
+	originalTrxId: AFI60BAC94, 
+	refundTrxId: AFI60BAC95, 
+	refundTransactionStatus: Completed, 
+	originalTrxAmount: 100, 
+	refundAmount: 50, 
+	currency: BDT, 
+	sku: order-1234, 
+	reason: customer requested refund, 
+	_completedTime: 2023-06-18T10:45:12:623 GMT+0600
+)
+```
+### Check Refund Status
+To look up the refund(s) issued against a payment, use the `refundStatus` method:
+
+***Request***
+```
+final result = await flutterBkash.refundStatus(
+  paymentId: "TR0011fd4uZMS1687062024354",
+  trxId: "AFI60BAC94",
+);
+```
+***Response***
+```
+BkashRefundStatusResponse(
+	originalTrxId: AFI60BAC94, 
+	originalTrxAmount: 100, 
+	originalTrxCompletedTime: 2023-06-18T10:22:31:623 GMT+0600, 
+	refundTransactions: [BkashRefundStatusItem(refundTrxId: AFI60BAC95, refundTransactionStatus: Completed, refundAmount: 50, _completedTime: 2023-06-18T10:45:12:623 GMT+0600)]
+)
+```
 ### Error Handling
 The methods mentioned above may throw a `BkashFailure` exception in case of an error. You can catch and handle the exception using a try-catch block:
 ```
@@ -134,8 +182,9 @@ try {
   print(e.message);
 }
 ```
+`e.message` carries bKash's actual error text when the API returns one (e.g. a specific refund rejection reason), falling back to a generic message (e.g. "Bad Request") only when the response has no parseable error body.
 
-Examples for see the `/example` folder.
+Examples for see the `/example` folder. The demo app also saves every payment/agreement/refund locally (History screen) so you can copy an ID or chain follow-up calls (e.g. pay with a saved agreement, refund a saved payment), and ships a Sandbox Info page with bKash's test wallet numbers, OTP and PIN.
 
 **Here is the example code** [link](https://github.com/codeboxrcodehub/flutter-bkash/blob/master/example/lib/main.dart)
 

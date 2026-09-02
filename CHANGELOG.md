@@ -32,3 +32,11 @@
 
 ## 0.3.1
 * Changed documentation
+
+## 1.0.0
+* Added Refund API: `FlutterBkash.refund()` and `FlutterBkash.refundStatus()`
+* `refund()` requires `sku` and `reason` — bKash's docs list them as optional, but the sandbox rejects the request without them
+* `BkashFailure.message` now surfaces bKash's actual error text (e.g. `errorMessage`/`errorMessageEn` from the response body) instead of a generic status-code message, wherever the API returns one
+* Fixed example app failing to build against current Flutter/Gradle/JDK (Gradle 8.14, AGP 8.11.1, Kotlin 2.2.20, upgraded `webview_flutter_android`)
+* Redesigned example app: Material 3 UI, on-device History (payments/agreements/refunds persist locally with copy-to-clipboard and chained follow-up actions), and a Sandbox Info page with bKash's test wallet numbers/OTP/PIN
+* Declaring 1.0.0: the public API (`FlutterBkash`, `BkashCredentials`, `BkashFailure`, `BkashApi`) is considered stable going forward
